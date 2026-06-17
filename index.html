@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ループエンジニアリング教科書 — Claude Code Guide</title>
+    <meta name="description" content="2026年のAI活用パラダイム「ループエンジニアリング」を概念→設計→実践→運用で読み解く教科書。Addy Osmani原典・Boris Cherny「write loops, not prompts」">
+    <meta property="og:title" content="ループエンジニアリング教科書 — Claude Code Guide">
+    <meta property="og:description" content="ループエンジニアリングを概念→設計→実践→運用で読み解く">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://fukukei23.github.io/loop-engineering-guide/">
+    <meta name="twitter:card" content="summary">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
+    <style>
+        .textbook { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+        .concept-box {
+            background: linear-gradient(135deg, var(--accent-bg, rgba(124,58,237,.08)), rgba(124,58,237,.02));
+            border: 1px solid var(--accent, #7c3aed);
+            border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: 1.5rem;
+        }
+        .concept-box h2 { margin-top: 0; color: var(--accent, #7c3aed); }
+        .acc-item {
+            border: 1px solid var(--border, rgba(0,0,0,.1)); border-radius: 10px;
+            margin-bottom: .8rem; overflow: hidden; background: var(--bg-raised, #fff);
+        }
+        .acc-item.open > .acc-content { display: block; }
+        .acc-content { display: none; padding: 1.2rem 1.4rem; border-top: 1px solid var(--border, rgba(0,0,0,.08)); }
+        .acc-content p, .acc-content li { font-size: .92rem; line-height: 1.7; }
+        .acc-content h4 { margin: 1rem 0 .3rem; color: var(--accent, #7c3aed); font-size: .95rem; }
+        .acc-content h4:first-child { margin-top: 0; }
+        .acc-header {
+            width: 100%; text-align: left; border: none; background: transparent;
+            padding: 1rem 1.4rem; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            color: var(--fg, #2d2d3f); display: flex; justify-content: space-between; align-items: center;
+        }
+        .acc-header:hover { background: rgba(124,58,237,.05); }
+        .acc-header .caret { transition: transform .2s; font-size: .9rem; opacity: .6; }
+        .acc-item.open > .acc-header .caret { transform: rotate(180deg); }
+        .part-h2 { margin: 2rem 0 1rem; padding-bottom: .4rem; border-bottom: 2px solid var(--accent, #7c3aed); color: var(--accent, #7c3aed); font-size: 1.3rem; }
+        .acc-content table, .ref-table { width: 100%; border-collapse: collapse; margin: .5rem 0; }
+        .acc-content th, .ref-table th { background: rgba(124,58,237,.1); padding: .5rem; text-align: left; font-size: .82rem; border: 1px solid var(--border, rgba(0,0,0,.1)); }
+        .acc-content td, .ref-table td { padding: .5rem; font-size: .85rem; border: 1px solid var(--border, rgba(0,0,0,.1)); vertical-align: top; }
+        .acc-content td a, .ref-table td a { color: var(--accent, #7c3aed); }
+        .src { font-size: .8rem; color: var(--accent, #7c3aed); text-decoration: none; display: inline-block; margin-top: .4rem; }
+        .src:hover { text-decoration: underline; }
+        .top-links { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.2rem; font-size:.85rem; }
+        .top-links a { color: var(--accent, #7c3aed); }
+        blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; padding: .4rem 1rem; background: rgba(124,58,237,.04); font-style: italic; }
+        .evolution { display:flex; gap:.3rem; align-items:center; flex-wrap:wrap; margin:.6rem 0; font-weight:600; font-size:.9rem; }
+        .evolution span { padding:.3rem .6rem; border-radius:6px; background:rgba(124,58,237,.1); color:var(--accent,#7c3aed); }
+        .evolution .arrow { padding:0 .2rem; opacity:.5; }
+        .evolution .final { background:var(--accent,#7c3aed); color:#fff; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <button class="menu-toggle" aria-label="メニュー" id="menuToggle"><span></span><span></span><span></span></button>
+        <a href="https://fukukei23.github.io/claude-code-guide/" class="site-title">⚡ Claude Code Guide</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="テーマ切替"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+    </header>
+
+    <main class="textbook">
+        <h1>🔄 ループエンジニアリング教科書</h1>
+
+        <div class="concept-box">
+            <h2>プロンプトを書くのが仕事 — ではなく、ループを書くのが仕事</h2>
+            <p>2026年6月、AI活用の主戦場は「上手なプロンプト」から「自律的に回るループの設計」へ移った。本書は、Addy Osmaniが体系化した「ループエンジニアリング」を、概念 → 設計 → 自分の実践 → 運用と移行の4部で読み解く、自分自身のための学習・実践整理の教科書。</p>
+            <p style="font-size:.82rem; margin-bottom:0; opacity:.7;">生成元: <a href="https://www.youtube.com/watch?v=Cps2LgY-ENE">解説動画</a> ＋ Web調査 ＋ 自分のClaude Code環境の棚卸し</p>
+        </div>
+
+        <div class="top-links">
+            <a href="https://fukukei23.github.io/openclaw-stack-guide/">🏠 OpenClaw Stack Guide（象徴的実装）</a>
+            <a href="https://fukukei23.github.io/claude-code-guide/">⚡ Claude Code Guide（機能詳細）</a>
+            <a href="https://fukukei23.github.io/guides/">📚 ガイド集</a>
+        </div>
+
+        <h2 class="part-h2">第1部 概念（なぜループか）</h2>
+
+        <div class="acc-item" data-key="ch1">
+            <button class="acc-header" onclick="toggle(this)">1. ループエンジニアリングとは <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>Googleのエンジニア <strong>Addy Osmani</strong> が2026年6月に体系化した概念。一言で言えば:</p>
+                <blockquote>ループエンジニアリングとは、エージェントにプロンプトを出す自分自身を置き換えること。代わりにそれを行うシステムを設計することだ。<br>— Addy Osmani「Loop Engineering」</blockquote>
+                <p>従来は人間がAIに1回ずつ指示を出し、結果を見て、また次の指示を出す — これを繰り返していた。ループエンジニアリングは、この「指示を出す役割」そのものを <strong>AIが自律的に次のタスクを考えて実行し続ける仕組み（＝ループ）</strong> で置き換える。</p>
+                <h4>「ループ」とは何か</h4>
+                <p>ここでのループは、単なる繰り返し処理ではない。<code>while</code> 文のように、AIが <strong>目標達成まで自律的に回り続けるサイクル</strong> を指す。人間は各反復で指示を出すのではなく、ループ全体を設計する。</p>
+                <a class="src" href="https://addyosmani.com/blog/loop-engineering/" target="_blank">📎 Addy Osmani原典「Loop Engineering」</a>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch2">
+            <button class="acc-header" onclick="toggle(this)">2. AI活用の進化 — 4段階 <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>ループエンジニアリングは突然現れたのではなく、AI活用の進化の到達点。各段階で「人間が工夫する対象」が移り変わってきた。</p>
+                <div class="evolution">
+                    <span>① Prompt</span><span class="arrow">→</span>
+                    <span>② Context</span><span class="arrow">→</span>
+                    <span>③ Harness</span><span class="arrow">→</span>
+                    <span class="final">④ Loop</span>
+                </div>
+                <table>
+                    <tr><th>段階</th><th>人間が工夫する対象</th><th>前提</th></tr>
+                    <tr><td><strong>① Prompt Engineering</strong></td><td>指示文の工夫</td><td>1回のやり取りで大当たりを狙う</td></tr>
+                    <tr><td><strong>② Context Engineering</strong></td><td>文脈の管理（何をAIに見せるか）</td><td>コンテキスト窓の設計</td></tr>
+                    <tr><td><strong>③ Harness Engineering</strong></td><td>環境整備（ガードレール・ツール・監視）</td><td>AIを包み込む実行基盤</td></tr>
+                    <tr><td><strong>④ Loop Engineering</strong></td><td>自律ループ全体の設計</td><td>指示役から降りる</td></tr>
+                </table>
+                <p>重要なのは、プロンプトの質だけで差がつかなくなったこと。上手な指示を1回出すより、<strong>失敗して自己修正しながら一歩ずつ進むループ</strong> を組む方が、不確実な現実では安定する。</p>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch3">
+            <button class="acc-header" onclick="toggle(this)">3. パラダイムシフト — Boris Cherny「write loops, not prompts」 <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>この概念を最も体現しているのが、Anthropicの <strong>Boris Cherny</strong> — Claude Codeの作者（責任者）。彼は自身の仕事をこう表現した:</p>
+                <blockquote>私の仕事はプロンプトを書くことではない。ループを書くことだ（My job is to write loops, not individual prompts）。<br>— Boris Cherny, Anthropic</blockquote>
+                <p>Claude Codeという製品自体が、この思想の結晶。ユーザーが都度指示を出すチャットツールではなく、hooks・cron・subagent・スキル・MCPを組み合わせて <strong>自律的にタスクを回す基盤</strong> を提供する。</p>
+                <h4>何が変わるか</h4>
+                <p>「良いプロンプトを書く人」から「良いループを設計する人」へ。プロンプトエンジニアリングが「過去の正解」になり、ループ設計がこれからの差別化要因になる。</p>
+                <a class="src" href="https://cobusgreyling.medium.com/loop-engineering-62926dd6991c" target="_blank">📎 Cobus Greyling「Loop Engineering」（Boris発言を直引用）</a>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch4">
+            <button class="acc-header" onclick="toggle(this)">4. キーパーソン <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <table>
+                    <tr><th>人物</th><th>所属</th><th>役割</th></tr>
+                    <tr><td><strong>Addy Osmani</strong></td><td>Google</td><td>概念の体系化。2026/6/7のブログ投稿が起点。著書『Image Optimization』等で知られる Web パフォーマンスの専門家</td></tr>
+                    <tr><td><strong>Boris Cherny</strong></td><td>Anthropic</td><td>Claude Code作者。「write loops, not prompts」の体現者</td></tr>
+                    <tr><td><strong>Peter Steinberger</strong></td><td>OpenClaw</td><td>シリコンバレーのAI界隈で概念を普及。OpenClawはループエンジニアリングの象徴的実装</td></tr>
+                    <tr><td><strong>Cobus Greyling</strong></td><td>（分析者）</td><td>実装パターンを整理。GitHub に CLI ツールとスターターを公開</td></tr>
+                </table>
+                <a class="src" href="https://github.com/cobusgreyling/loop-engineering" target="_blank">📎 cobusgreyling/loop-engineering（実装パターン集）</a>
+            </div>
+        </div>
+
+        <h2 class="part-h2">第2部 設計（ループの中身）</h2>
+
+        <div class="acc-item" data-key="ch5">
+            <button class="acc-header" onclick="toggle(this)">5. ループの5要素 <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>自律ループは5つの構成要素で成り立つ。いずれかが欠けるとループは止まるか暴走する。</p>
+                <table>
+                    <tr><th>要素</th><th>意味</th><th>欠けると</th></tr>
+                    <tr><td><strong>① Clear goal</strong></td><td>明確で検証可能な目標</td><td>いつ終わるか分からない</td></tr>
+                    <tr><td><strong>② Context management</strong></td><td>反復間で状態・文脈を維持</td><td>毎回ゼロからやり直し</td></tr>
+                    <tr><td><strong>③ Verification</strong></td><td>自己評価・出力の検証</td><td>間違いに気づけない</td></tr>
+                    <tr><td><strong>④ Tool use</strong></td><td>ツール・テストの実行能力</td><td>実際の環境に触れない</td></tr>
+                    <tr><td><strong>⑤ Termination conditions</strong></td><td>停止条件の定義</td><td>無限ループ・コスト爆発</td></tr>
+                </table>
+                <p>DataScienceDojo はこれを「<strong>trigger + verifiable goal</strong>」— エージェントが目標達成まで人間の追加指示なしに回り続ける構造 — と要約している。進化の系譜としては ReAct パターンの延長。</p>
+                <a class="src" href="https://datasciencedojo.com/blog/agentic-loops-explained-from-react-to-loop-engineering-2026-guide/" target="_blank">📎 DataScienceDojo「Agentic Loops: From ReAct to Loop Engineering」</a>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch6">
+            <button class="acc-header" onclick="toggle(this)">6. 状態の記録（土台） <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>5要素を支える <strong>土台</strong>。AIはセッションごとに記憶を失うため、この土台が無いと文脈維持（②）も自己修正（③）も成り立たない。</p>
+                <h4>記憶の外在化</h4>
+                <p>「今どこまで進んだか」「次に何をやるか」「何に失敗したか」を <strong>外部ファイル（状態ファイル）</strong> に書き残し、次の反復・次のセッションがそれを読み込んで引き継ぐ。AIの記憶を、AIの外側に置く設計。</p>
+                <blockquote>ループを回すのはAIだが、ループを繋ぐのはファイルだ。</blockquote>
+                <p>これが無いと、毎セッション「前提を説明し直す」無駄が発生し、ループの自律性が崩れる。</p>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch7">
+            <button class="acc-header" onclick="toggle(this)">7. 作るAIと検証AIの分離 <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>ループ設計における最重要ベストプラクティス。</p>
+                <h4>なぜ分けるか</h4>
+                <p>同じAIに「コードを書かせて、それをそのままチェックさせる」と、どうしても <strong>判断が甘くなる</strong>。自分の書いたものに甘くなるのは人間と同じ。だから役割を物理的に分ける:</p>
+                <ul>
+                    <li><strong>作るAI</strong> — 修正案・コードを生成する</li>
+                    <li><strong>検証AI</strong> — プロジェクトの規約・既存テストに照らして、<strong>厳しく</strong>採点する</li>
+                </ul>
+                <p>検証AIは「作るAIとは別のコンテキスト・別の指示」で動く。これで初めて、本物のコードレビューと同じ緊張感が生まれる。Claude Code では subagent（code-reviewer・silent-failure-hunter 等）がこの役割を担う。</p>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch8">
+            <button class="acc-header" onclick="toggle(this)">8. ループの1日 — 朝→昼→夕→夜 <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>自律ループが1日をどう回すか、概念図（元動画の実演）。</p>
+                <h4>🌅 朝 — 自動実行とタスク抽出</h4>
+                <p>人間の指示なしにタイマーで起動。「状況整理AI」が前日の失敗ビルド・残課題・最近のコード変更を読み込み、「今日やることリスト」を自動生成してファイルに書き出す。</p>
+                <h4>☀️ 昼 — 作業部屋の分離と相互検証</h4>
+                <p>各タスクに独立した作業部屋（干渉しないコンテキスト）を用意。<strong>作るAI</strong>が実装 → 完了後 <strong>検証AI</strong> が規約とテストで厳格に自動検証。</p>
+                <h4>🌇 夕 — 外部連携とエスカレーション</h4>
+                <p>検証通過したものを MCP 経由でチケット更新・PR作成・チャット通知。AIだけでは解けない難題は「人間の判断を仰ぐボックス」に仕分け（無理に進めない）。</p>
+                <h4>🌙 夜 — 状態の保存</h4>
+                <p>1日の成果・うまくいったこと・残課題を状態ファイルに保存。翌朝、AIがそれを読み込んで記憶が引き継がれる。</p>
+            </div>
+        </div>
+
+        <h2 class="part-h2">第3部 実践（自分の環境マップ）</h2>
+
+        <div class="acc-item" data-key="ch9">
+            <button class="acc-header" onclick="toggle(this)">9. 自分のClaude Code環境を5要素でマップ <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>「ループエンジニアリング」という概念は遠い存在ではない。自分のClaude Code環境は <strong>既にこのループを実践している</strong>。5要素と土台を、実際の実装に対応させた。</p>
+                <table>
+                    <tr><th>5要素・土台</th><th>自分の実装</th></tr>
+                    <tr><td><strong>① Clear goal</strong></td><td>GitHub Issue・handoffの「次にやること」・バックログ</td></tr>
+                    <tr><td><strong>② Context management</strong></td><td>git worktree（作業部屋の分離）・CLAUDE.md（プロジェクト固有ルール）</td></tr>
+                    <tr><td><strong>③ Verification</strong></td><td>subagent（code-reviewer / silent-failure-hunter / type-design-analyzer）・テストスイート</td></tr>
+                    <tr><td><strong>④ Tool use</strong></td><td>MCP（brave-search / github / playwright / context7）・hooks（PreToolUse安全チェック等）</td></tr>
+                    <tr><td><strong>⑤ Termination</strong></td><td><code>next-issue.py</code>（pending空で停止）・<code>state.active=false</code></td></tr>
+                    <tr><td><strong>🟪 土台: 状態の記録</strong></td><td>handoff.md・SSOT日記・state.json・memory</td></tr>
+                </table>
+                <p>つまり Boris の「write loops, not prompts」は、自分の環境の <code>~/.claude/</code> の中に既に書かれている。この教科書は、その実践を言語化し直す作業でもある。</p>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch10">
+            <button class="acc-header" onclick="toggle(this)">10. 他者実装比較 — OpenClaw / Claude Code / Codex <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>2026年時点で、ループエンジニアリング・パターンを組み込んだ主な実装の比較。</p>
+                <table>
+                    <tr><th>観点</th><th>OpenClaw</th><th>Claude Code</th><th>Codex</th></tr>
+                    <tr><td>提供元</td><td>Peter Steinberger（OSS）</td><td>Anthropic（Boris Cherny）</td><td>OpenAI</td></tr>
+                    <tr><td>位置づけ</td><td>ループの象徴的実装・界隈普及の起点</td><td>hooks+cron+subagent+skill+MCPで自律基盤</td><td>OpenAI系コーディングエージェント</td></tr>
+                    <tr><td>ループの担い手</td><td>OSレベルの自動化層</td><td>SessionStart/Stop hooks・自律タスクループ</td><td>エージェント実行ループ（内部）</td></tr>
+                    <tr><td>状態の記録</td><td>外部ファイル</td><td>handoff.md・memory・日記</td><td>セッション状態</td></tr>
+                </table>
+                <p>The AI Corner の分析では、Claude Code と Codex は <strong>どちらも2026年にループエンジニアリング・パターンを出荷済み</strong>。違いは、Claude Code が hooks/cron/skill/MCP を <strong>ユーザー側で組み立てられる基盤</strong> として公開している点（自分の環境がまさにそれ）。</p>
+                <a class="src" href="https://www.the-ai-corner.com/p/loop-engineering-coding-agents-2026" target="_blank">📎 The AI Corner「Loop Engineering: Build Self-Running Coding Agents 2026」</a>
+            </div>
+        </div>
+
+        <h2 class="part-h2">第4部 運用と移行</h2>
+
+        <div class="acc-item" data-key="ch11">
+            <button class="acc-header" onclick="toggle(this)">11. 3つの落とし穴 <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>ループは強力だが、放っておくと3つの罠に落ちる。</p>
+                <h4>① 検証 — 人間の目が必須</h4>
+                <p>AIの自己検証は甘くなる（Ch7）。最終的な「これで出してよいか」の判断は人間が持つ。自動化が進むほど、この最終チェックをサボりたくなるが、そこが一番危ない。</p>
+                <h4>② コスト — 並行処理で計算コスト増大</h4>
+                <p>ループは（特にマルチエージェントで）並行して回る。サブエージェントを多数起動すると、トークン消費が爆発する。停止条件（Ch5⑤）と予算上限の設計が必須。</p>
+                <h4>③ 理解の借金 — AIが超高速生成し、人間がシステムを説明できなくなる</h4>
+                <p>これが最も恐ろしい。AIが人間を置き去りにしてコードを生成し続けると、人間側が「システムが中で何をやっているか説明できない状態」に陥る。この <strong>理解のギャップ（借金）</strong> は利息がつく。返済（コードを読む力）をサボると、いずめ破産する。</p>
+                <blockquote>ループが自動化を担うほど、コードを読む力（Python基礎学習等）が重要になる。自動化と理解はトレードオフではない — 自動化を安全に回すために理解が要る。</blockquote>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch12">
+            <button class="acc-header" onclick="toggle(this)">12. プロンプト→ループ移行ロードマップ <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>いきなり完全自律ループは組めない。段階的に5ステップで移行する。</p>
+                <table>
+                    <tr><th>段階</th><th>やること</th><th>人間の関与</th></tr>
+                    <tr><td><strong>Step 1</strong></td><td>プロンプトの再利用化（スキル化・Markdown化）</td><td>毎回指示（ただし定型化）</td></tr>
+                    <tr><td><strong>Step 2</strong></td><td>状態の記録を始める（handoff・ログ・日記）</td><td>記録の設計のみ</td></tr>
+                    <tr><td><strong>Step 3</strong></td><td>自己検証の導入（subagent・テスト自動実行）</td><td>検証結果の確認</td></tr>
+                    <tr><td><strong>Step 4</strong></td><td>ツール連携（MCP・hooks・通知）</td><td>例外時のみ</td></tr>
+                    <tr><td><strong>Step 5</strong></td><td>完全自律ループ（cron・Stop Hook で次タスク起動）</td><td>監督・最終判断のみ</td></tr>
+                </table>
+                <p>自分の環境は Step 4〜5 に到達している。残る課題は「理解の借金」の返済（Step 3 の検証を人間が追える程度に、コードを読む力を保つこと）。</p>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch13">
+            <button class="acc-header" onclick="toggle(this)">13. エンジニアであり続ける <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <p>ループが実行を担うからこそ、人間は <strong>「ただ実行ボタンを押すだけの人」に退化してはならない</strong>。</p>
+                <h4>人間の新しい役割</h4>
+                <ul>
+                    <li><strong>全体の俯瞰</strong> — ループの健全性・方向を監視する</li>
+                    <li><strong>最終判断</strong> — 「これで出してよいか」の最後の砦</li>
+                    <li><strong>ループの設計改善</strong> — 止まったループの原因究明・再設計</li>
+                    <li><strong>審美眼</strong> — 何を実行し、何を差し止めるかの倫理的・品質的判断</li>
+                </ul>
+                <blockquote>AIが高速に仕事をこなすようになればなるほど、何をさせるかを決める人間の判断が、最大の武器になる。</blockquote>
+                <p>これは「コードを読めない素人だから関係ない」ではない。むしろ、非IT出身でループを組んでいるからこそ、<strong>コードを読む力を意図的に鍛え続ける</strong> ことが、理解の借金を防ぐ唯一の道。</p>
+            </div>
+        </div>
+
+        <div class="acc-item" data-key="ch14">
+            <button class="acc-header" onclick="toggle(this)">14. 参考資料・リンク集 <span class="caret">▼</span></button>
+            <div class="acc-content">
+                <table class="ref-table">
+                    <tr><th>資料</th><th>内容</th></tr>
+                    <tr><td><a href="https://addyosmani.com/blog/loop-engineering/" target="_blank">Addy Osmani「Loop Engineering」</a></td><td>概念の原典（2026/6/7）。すべての起点</td></tr>
+                    <tr><td><a href="https://cobusgreyling.medium.com/loop-engineering-62926dd6991c" target="_blank">Cobus Greyling「Loop Engineering」</a></td><td>Boris Cherny 発言の直引用あり。Claude Code哲学との対応</td></tr>
+                    <tr><td><a href="https://www.the-ai-corner.com/p/loop-engineering-coding-agents-2026" target="_blank">The AI Corner</a></td><td>Claude Code / Codex のループ実装を比較</td></tr>
+                    <tr><td><a href="https://lushbinary.com/blog/loop-engineering-ai-coding-agents-guide/" target="_blank">Lushbinary</a></td><td>5要素の実践ガイド</td></tr>
+                    <tr><td><a href="https://datasciencedojo.com/blog/agentic-loops-explained-from-react-to-loop-engineering-2026-guide/" target="_blank">DataScienceDojo</a></td><td>ReAct → Loop Engineering の系譜</td></tr>
+                    <tr><td><a href="https://github.com/cobusgreyling/loop-engineering" target="_blank">cobusgreyling/loop-engineering</a></td><td>実装パターン・CLIツール・スターター（GitHub）</td></tr>
+                    <tr><td><a href="https://www.youtube.com/watch?v=Cps2LgY-ENE" target="_blank">解説動画「ループエンジニアリングを知ってみよう」</a></td><td>本書の素材元。【アイ】のAIでできるチャンネル・2分7秒</td></tr>
+                </table>
+                <h4>関連ガイド（自分の環境）</h4>
+                <ul>
+                    <li><a href="https://fukukei23.github.io/openclaw-stack-guide/">OpenClaw Stack Guide</a> — ループの象徴的実装</li>
+                    <li><a href="https://fukukei23.github.io/claude-code-guide/">Claude Code Guide</a> — hooks/skill/MCP/subagent の機能詳細</li>
+                    <li><a href="https://fukukei23.github.io/python-reading-guide/">Python基礎Guide</a> — 「理解の借金」返済の道具</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border,rgba(0,0,0,.1)); font-size:.82rem; opacity:.7;">
+            <p>🔄 ループエンジニアリング教科書 — 2026-06-18 作成（自分用学習・実践整理）</p>
+            <p>生成元: <a href="https://www.youtube.com/watch?v=Cps2LgY-ENE">解説動画</a> + Web調査 + 自分のClaude Code環境 ／ <a href="https://github.com/fukukei23/loop-engineering-guide">GitHub</a></p>
+        </footer>
+    </main>
+
+    <script>
+        function toggle(h){const i=h.closest(".acc-item"),o=i.classList.contains("open");i.classList.toggle("open",!o);const k=i.dataset.key;if(k)localStorage.setItem("acc_"+k,(!o).toString());}
+        document.querySelectorAll(".acc-item[data-key]").forEach(i=>{const k=i.dataset.key;if(localStorage.getItem("acc_"+k)==="true")i.classList.add("open");});
+
+        // テーマ切替
+        const themeToggle=document.getElementById('themeToggle');
+        const savedTheme=localStorage.getItem('theme')||'light';
+        document.documentElement.setAttribute('data-theme',savedTheme);
+        themeToggle.addEventListener('click',()=>{const cur=document.documentElement.getAttribute('data-theme');const next=cur==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',next);localStorage.setItem('theme',next);});
+
+        // メニュー（モバイル）
+        const menuToggle=document.getElementById('menuToggle');
+        if(menuToggle){menuToggle.addEventListener('click',()=>{document.body.classList.toggle('nav-open');});}
+    </script>
+</body>
+</html>
