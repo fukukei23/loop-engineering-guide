@@ -106,6 +106,9 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <tr><td><strong>④ Loop Engineering</strong></td><td>自律ループ全体の設計</td><td>指示役から降りる</td></tr>
 </table>
 <p>重要なのは、プロンプトの質だけで差がつかなくなったこと。上手な指示を1回出すより、<strong>失敗して自己修正しながら一歩ずつ進むループ</strong> を組む方が、不確実な現実では安定する。</p>
+<h4>Cat Wu（Claude Code Head of Product）の3段階フレーム</h4>
+<p>BorisとともにClaude Codeを率いる<strong>Cat Wu</strong>は、上記4段階モデルをより実務的に圧縮した<strong>3段階</strong>で語っている: <strong>source code → agent → loop</strong>。「最初はコードを直接編集していた。次はエージェントにコード編集を頼むようになった。今は <code>/loop</code>・<code>/goal</code>・routineがClaudeにプロンプトを出してくれる」（Boris Cherny）。4段階モデルに対応させると、②Context・③Harnessが「agent」フェーズに、④Loopがそのまま「loop」フェーズにあたる。</p>
+<a class="src" href="https://www.theneuron.ai/explainer-articles/claude-code-creators-boris-cherny-and-cat-wu-explain-how-to-use-agent-loops/" target="_blank">📎 The Neuron「Claude Code Creators Boris Cherny & Cat Wu Explain Agent Loops」</a>
 </div>
 </div>
 
@@ -117,7 +120,10 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <p>Claude Codeという製品自体が、この思想の結晶。ユーザーが都度指示を出すチャットツールではなく、hooks・cron・subagent・スキル・MCPを組み合わせて <strong>自律的にタスクを回す基盤</strong> を提供する。</p>
 <h4>何が変わるか</h4>
 <p>「良いプロンプトを書く人」から「良いループを設計する人」へ。プロンプトエンジニアリングが「過去の正解」になり、ループ設計がこれからの差別化要因になる。</p>
+<h4>実数値で見るBorisの「ループ生活」</h4>
+<p>これは比喩ではない。2025年11月、Borisは「使っていなかったから」自分のIDEをアンインストールしたと明かした。続く12月には、Claude Code + Opus 4.5だけで<strong>30日間に259件のPRをマージ</strong>（497コミット、+4万行/−3.8万行・全行Claude Code生成）— その間IDEを一度も開いていない。Stop Hookでループを組み、数分〜数日間（最長で1日18時間）連続稼働させるのが日常運用になっている。</p>
 <a class="src" href="https://cobusgreyling.medium.com/loop-engineering-62926dd6991c" target="_blank">📎 Cobus Greyling「Loop Engineering」（Boris発言を直引用）</a>
+<a class="src" href="https://news.ycombinator.com/item?id=46407967" target="_blank">📎 「Claude Code creator Boris Cherny landed 259 PRs in 30 days, all by Opus 4.5」（Hacker News）</a>
 </div>
 </div>
 
@@ -128,10 +134,11 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <tr><th>人物</th><th>所属</th><th>役割</th></tr>
 <tr><td><strong>Addy Osmani</strong></td><td>Google</td><td>概念の体系化。2026/6/7のブログ投稿が起点。著書『Image Optimization』等で知られる Web パフォーマンスの専門家</td></tr>
 <tr><td><strong>Boris Cherny</strong></td><td>Anthropic</td><td>Claude Code作者。「write loops, not prompts」の体現者</td></tr>
-<tr><td><strong>Peter Steinberger</strong></td><td>OpenClaw</td><td>シリコンバレーのAI界隈で概念を普及。OpenClawはループエンジニアリングの象徴的実装</td></tr>
+<tr><td><strong>Peter Steinberger</strong></td><td>OpenAI（2026年2月〜）</td><td>OpenClaw創業者。シリコンバレーのAI界隈で概念を普及。2026年2月にOpenAI入社を発表、OpenClaw自体は特定企業に支配されない「OpenClaw Foundation」へ移管され、OSSとしての独立運営を継続</td></tr>
 <tr><td><strong>Cobus Greyling</strong></td><td>（分析者）</td><td>実装パターンを整理。GitHub に CLI ツールとスターターを公開</td></tr>
 </table>
 <a class="src" href="https://github.com/cobusgreyling/loop-engineering" target="_blank">📎 cobusgreyling/loop-engineering（実装パターン集）</a>
+<a class="src" href="https://techcrunch.com/2026/02/15/openclaw-creator-peter-steinberger-joins-openai/" target="_blank">📎 TechCrunch「OpenClaw creator Peter Steinberger joins OpenAI」</a>
 </div>
 </div>
 
@@ -206,6 +213,10 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <p>「今どこまで進んだか」「次に何をやるか」「何に失敗したか」を <strong>外部ファイル（状態ファイル）</strong> に書き残し、次の反復・次のセッションがそれを読み込んで引き継ぐ。AIの記憶を、AIの外側に置く設計。</p>
 <blockquote>ループを回すのはAIだが、ループを繋ぐのはファイルだ。</blockquote>
 <p>これが無いと、毎セッション「前提を説明し直す」無駄が発生し、ループの自律性が崩れる。</p>
+<h4>具体例: Ralph Wiggumテクニック</h4>
+<p>「記憶の外在化」を最も極端な形で実践したのが <strong>Ralph Wiggumテクニック</strong>。Geoffrey Huntleyが考案した、<code>while :; do cat PROMPT.md | claude-code; done</code> という単純な無限ループで、AI自身のコンテキストウィンドウには何も保持させず、進捗・仕様・修正計画はすべて<strong>ファイルとgitコミット履歴</strong>に外在化する。2026年初頭、Ryan Carsonがこの手法をスレッドで紹介し（86万ビュー超）、界隈に爆発的に広まった。</p>
+<blockquote>このテクニックは不確実な世界において、決定論的に「下手」であることを選ぶ。予測不能に成功するより、予測可能に失敗する方がいい。<br>— Geoffrey Huntley（意訳）</blockquote>
+<a class="src" href="https://ghuntley.com/ralph/" target="_blank">📎 Geoffrey Huntley「Ralph Wiggum as a "software engineer"」</a>
 </div>
 </div>
 
@@ -256,6 +267,15 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 </table>
 <p>つまり Boris の「write loops, not prompts」は、自分の環境の <code>~/.claude/</code> の中に既に書かれている。この教科書は、その実践を言語化し直す作業でもある。</p>
 <p>第6章の観点から補足すると、<strong>ツール（/goal・Routines）の有無にかかわらず、上記の制御系を設計できていることがループエンジニアリングの本質</strong>。ネイティブ機能はあくまで「Automationsの自動継続」を楽にする道具であり、state.json・next-issue.py・Stop Hook連鎖による自前実装は、それと同等かそれ以上の制御系を構成している。</p>
+<h4>Tier A（端末ハーネス）/ Tier B（プラットフォームランタイム）— 自分の環境はどちらか</h4>
+<p>Cobus Greylingは続編「Loop Engineering Playbook」で、ループの実行環境を2段階に分類している。</p>
+<table>
+<tr><th>Tier</th><th>定義</th><th>代表例</th><th>向いている規模</th></tr>
+<tr><td><strong>Tier A: 端末ハーネス</strong></td><td>開発者の端末で <code>/loop</code> 等を直接実行。sub-agent・skill・MCPコネクタがローカルで完結</td><td>Claude Code、Grok Build</td><td>個人・小規模チーム</td></tr>
+<tr><td><strong>Tier B: プラットフォームランタイム</strong></td><td>隔離されたサンドボックス（microVM）上で永続実行。クラッシュ後も状態を復元できるcheckpoint型の実行基盤</td><td>LangChain / LangSmith Sandboxes</td><td>本番・マルチテナント</td></tr>
+</table>
+<p>自分の環境（Claude Code をターミナルで運用）は <strong>Tier A</strong>。第13章のStep 4〜5は依然Tier Aの範囲内であり、複数テナント・本番SaaS化が必要になった時点でTier Bへの移行を検討する、というのが現実的な判断基準になる。</p>
+<a class="src" href="https://cobusgreyling.medium.com/loop-engineering-playbook-4460e01e88d8" target="_blank">📎 Cobus Greyling「Loop Engineering Playbook」</a>
 </div>
 </div>
 
@@ -265,7 +285,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <p>2026年時点で、ループエンジニアリング・パターンを組み込んだ主な実装の比較。</p>
 <table>
 <tr><th>観点</th><th>OpenClaw</th><th>Claude Code</th><th>Codex</th></tr>
-<tr><td>提供元</td><td>Peter Steinberger（OSS）</td><td>Anthropic（Boris Cherny）</td><td>OpenAI</td></tr>
+<tr><td>提供元</td><td>Peter Steinberger（OSS、2026/2〜OpenAI入社・OpenClaw Foundationへ移管）</td><td>Anthropic（Boris Cherny）</td><td>OpenAI</td></tr>
 <tr><td>位置づけ</td><td>ループの象徴的実装・界隈普及の起点</td><td>hooks+cron+subagent+skill+MCPで自律基盤</td><td>OpenAI系コーディングエージェント</td></tr>
 <tr><td>ループの担い手</td><td>OSレベルの自動化層</td><td>SessionStart/Stop hooks・自律タスクループ</td><td>エージェント実行ループ（内部）</td></tr>
 <tr><td>状態の記録</td><td>外部ファイル</td><td>handoff.md・memory・日記</td><td>セッション状態</td></tr>
@@ -283,6 +303,9 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <p>ループは強力だが、放っておくと3つの罠に落ちる。</p>
 <h4>① 検証 — 人間の目が必須</h4>
 <p>AIの自己検証は甘くなる（第8章）。最終的な「これで出してよいか」の判断は人間が持つ。自動化が進むほど、この最終チェックをサボりたくなるが、そこが一番危ない。</p>
+<p>Peter Steinbergerはこれを <strong>「the agentic trap（エージェント的な罠）」</strong> と呼ぶ — 人間が早すぎるタイミングでループから手を引くと、AIは一晩中動き続けても「テイスト（taste）」を持たないため、結局は大量の「slop（質の低い量産物）」しか生まれない。仕様を最初に全部書き切って後は丸投げ、という発想そのものが罠になる。</p>
+<blockquote>AIはスパイキーに賢く優秀だが、うまく導かなければ結局slopになる。正しい問いを投げかけなければ、それもslopになる。<br>— Peter Steinberger（意訳）</blockquote>
+<a class="src" href="https://creatoreconomy.so/p/how-openclaws-creator-uses-ai-peter-steinberger" target="_blank">📎 Peter Steinberger「the agentic trap」関連インタビュー</a>
 <h4>② コスト — 並行処理で計算コスト増大</h4>
 <p>ループは（特にマルチエージェントで）並行して回る。サブエージェントを多数起動すると、トークン消費が爆発する。停止条件（第5章⑤）と予算上限の設計が必須。</p>
 <h4>③ 理解の借金 — AIが超高速生成し、人間がシステムを説明できなくなる</h4>
@@ -304,6 +327,20 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <tr><td><strong>Step 5</strong></td><td>完全自律ループ（cron・Stop Hook で次タスク起動）</td><td>監督・最終判断のみ</td></tr>
 </table>
 <p>自分の環境は Step 4〜5 に到達している。残る課題は「理解の借金」の返済（Step 3 の検証を人間が追える程度に、コードを読む力を保つこと）。</p>
+<h4>本番パターン7選（頻度・コスト目安）— どのStepから始めるか</h4>
+<p>Cobus Greylingの続編「Loop Engineering Playbook」では、実際に本番投入されているループを7パターンに整理し、頻度とリスク（≒コスト）目安を示している。</p>
+<table>
+<tr><th>パターン</th><th>頻度</th><th>リスク/コスト目安</th></tr>
+<tr><td>PR Babysitter</td><td>5〜15分</td><td>中</td></tr>
+<tr><td>CI Sweeper</td><td>5〜15分</td><td>中</td></tr>
+<tr><td>Issue Triage</td><td>2時間〜1日</td><td>低</td></tr>
+<tr><td>Daily Triage</td><td>1〜2日</td><td>低</td></tr>
+<tr><td>Post-Merge Cleanup</td><td>6時間〜1日</td><td>低</td></tr>
+<tr><td>Dependency Sweeper</td><td>6時間〜1日</td><td>中</td></tr>
+<tr><td>Changelog Drafter</td><td>1日</td><td>低</td></tr>
+</table>
+<p>頻度が高い（5〜15分間隔）パターンほど暴走時のトークン消費リスクが大きく、「3回失敗したら人間にエスカレーション」という上限設計（第12章②）が必須になる。Step 2〜3（状態記録・自己検証）が固まっていないうちは、まず低頻度・低リスクのDaily Triage / Changelog Drafterから始め、Tier A環境（第10章）で実績を積んでからPR Babysitter等の高頻度パターンに広げるのが安全。</p>
+<a class="src" href="https://cobusgreyling.medium.com/loop-engineering-playbook-4460e01e88d8" target="_blank">📎 Cobus Greyling「Loop Engineering Playbook」</a>
 </div>
 </div>
 
@@ -337,6 +374,12 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <tr><td><a href="https://code.claude.com/docs/en/goal" target="_blank">Claude Code /goal 公式ドキュメント</a></td><td>条件文の書き方・評価モデルの仕組み</td></tr>
 <tr><td><a href="https://code.claude.com/docs/en/routines" target="_blank">Claude Code Routines 公式ドキュメント</a></td><td>スケジュール・API・GitHub Webhookトリガー</td></tr>
 <tr><td><a href="https://www.youtube.com/watch?v=Cps2LgY-ENE" target="_blank">解説動画「ループエンジニアリングを知ってみよう」</a></td><td>本書の素材元。【アイ】のAIでできるチャンネル・2分7秒</td></tr>
+<tr><td><a href="https://cobusgreyling.medium.com/loop-engineering-playbook-4460e01e88d8" target="_blank">Cobus Greyling「Loop Engineering Playbook」（続編）</a></td><td>7本番パターン・Tier A/Tier B分類</td></tr>
+<tr><td><a href="https://www.theneuron.ai/explainer-articles/claude-code-creators-boris-cherny-and-cat-wu-explain-how-to-use-agent-loops/" target="_blank">The Neuron（Boris Cherny & Cat Wu）</a></td><td>「source code → agent → loop」3段階フレーム</td></tr>
+<tr><td><a href="https://ghuntley.com/ralph/" target="_blank">Geoffrey Huntley「Ralph Wiggum as a "software engineer"」</a></td><td>状態の外在化を極端な形で実践する手法の原典</td></tr>
+<tr><td><a href="https://techcrunch.com/2026/02/15/openclaw-creator-peter-steinberger-joins-openai/" target="_blank">TechCrunch（Steinberger × OpenAI）</a></td><td>OpenClaw Foundationへの移管の経緯</td></tr>
+<tr><td><a href="https://creatoreconomy.so/p/how-openclaws-creator-uses-ai-peter-steinberger" target="_blank">Peter Steinberger インタビュー</a></td><td>「the agentic trap」「slop」「taste」の概念</td></tr>
+<tr><td><a href="https://news.ycombinator.com/item?id=46407967" target="_blank">Hacker News（Boris Cherny 259 PRs）</a></td><td>30日259PR・IDEアンインストールの実数値</td></tr>
 </table>
 <h4>関連ガイド（自分の環境）</h4>
 <ul>
@@ -348,7 +391,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 </div>
 
 <footer style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border,rgba(0,0,0,.1)); font-size:.82rem; opacity:.7;">
-<p>🔄 ループエンジニアリング教科書 — 2026-06-18 作成 / 2026-06-22 更新（自分用学習・実践整理）</p>
+<p>🔄 ループエンジニアリング教科書 — 2026-06-18 作成 / 2026-06-23 更新（自分用学習・実践整理）</p>
 <p>生成元: <a href="https://www.youtube.com/watch?v=Cps2LgY-ENE">解説動画</a> + Web調査 + 自分のClaude Code環境 ／ <a href="https://github.com/fukukei23/loop-engineering-guide">GitHub</a></p>
 </footer>
 </main>
