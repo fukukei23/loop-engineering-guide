@@ -11,6 +11,10 @@
 - **第3部 実践**: 自分のClaude Code環境を5要素でマップ / OpenClaw・Claude Code・Codex比較
 - **第4部 運用と移行**: 3つの落とし穴 / プロンプト→ループ移行ロードマップ / エンジニアであり続ける / 参考資料
 
+## 姉妹ページ: 私の運用ガイド（具体手順）
+
+- [🔧 私のLoop Engineering運用ガイド](https://fukukei23.github.io/loop-engineering-guide/operation.html)（`operation.html`） — 概念教科書（本ページ）が「ループエンジニアリングとは何か」を学ぶものなのに対し、こちらは自分のClaude Code環境で毎日どう運用するかの具体手順（Daily Triage・承認ゲート・state.json・トラブル対応）。原本は SSOT `00_SYSTEM/共通ルール/自律開発ループ.md`。
+
 ## 生成元
 
 - [解説動画「ループエンジニアリングを知ってみよう」](https://www.youtube.com/watch?v=Cps2LgY-ENE)（Gemini APIで解析）

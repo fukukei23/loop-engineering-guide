@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>私のLoop Engineering運用ガイド — 具体手順</title>
+<meta name="description" content="自分のClaude Code環境でLoop Engineering（Daily Triage メタループ）を毎日どう運用するかの具体手順。cron・承認ゲート・state.json・トラブル対応まで。">
+<meta property="og:title" content="私のLoop Engineering運用ガイド — 具体手順">
+<meta property="og:description" content="Daily Triage メタループの毎日の運用手順・アーキテクチャ・state.json・トラブル対応">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://fukukei23.github.io/loop-engineering-guide/operation.html">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
+<style>
+.textbook { max-width: 900px; margin: 0 auto; padding: calc(var(--header-h, 60px) + 1.5rem) 1rem 4rem; }
+.concept-box {
+background: linear-gradient(135deg, var(--accent-bg, rgba(124,58,237,.08)), rgba(124,58,237,.02));
+border: 1px solid var(--accent, #7c3aed);
+border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: 1.5rem;
+}
+.concept-box h2 { margin-top: 0; color: var(--accent, #7c3aed); }
+.acc-item {
+border: 1px solid var(--border, rgba(0,0,0,.1)); border-radius: 10px;
+margin-bottom: .8rem; overflow: hidden; background: var(--bg-raised, #fff);
+}
+.acc-item.open > .acc-content { display: block; }
+.acc-content { display: none; padding: 1.2rem 1.4rem; border-top: 1px solid var(--border, rgba(0,0,0,.08)); }
+.acc-content p, .acc-content li { font-size: .92rem; line-height: 1.7; }
+.acc-content h4 { margin: 1rem 0 .3rem; color: var(--accent, #7c3aed); font-size: .95rem; }
+.acc-content h4:first-child { margin-top: 0; }
+.acc-header {
+width: 100%; text-align: left; border: none; background: transparent;
+padding: 1rem 1.4rem; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+color: var(--fg, #2d2d3f); display: flex; justify-content: space-between; align-items: center;
+}
+.acc-header:hover { background: rgba(124,58,237,.05); }
+.acc-header .caret { transition: transform .2s; font-size: .9rem; opacity: .6; }
+.acc-item.open > .acc-header .caret { transform: rotate(180deg); }
+.part-h2 { margin: 2rem 0 1rem; padding-bottom: .4rem; border-bottom: 2px solid var(--accent, #7c3aed); color: var(--accent, #7c3aed); font-size: 1.3rem; }
+.acc-content table, .ref-table { width: 100%; border-collapse: collapse; margin: .5rem 0; }
+.acc-content th, .ref-table th { background: rgba(124,58,237,.1); padding: .5rem; text-align: left; font-size: .82rem; border: 1px solid var(--border, rgba(0,0,0,.1)); }
+.acc-content td, .ref-table td { padding: .5rem; font-size: .85rem; border: 1px solid var(--border, rgba(0,0,0,.1)); vertical-align: top; }
+.acc-content td a, .ref-table td a { color: var(--accent, #7c3aed); }
+.src { font-size: .8rem; color: var(--accent, #7c3aed); text-decoration: none; display: inline-block; margin-top: .4rem; }
+.src:hover { text-decoration: underline; }
+.top-links { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.2rem; font-size:.85rem; }
+.top-links a { color: var(--accent, #7c3aed); }
+blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; padding: .4rem 1rem; background: rgba(124,58,237,.04); font-style: italic; }
+.acc-content pre { background: rgba(124,58,237,.06); border: 1px solid var(--border, rgba(0,0,0,.1)); border-radius: 8px; padding: .8rem 1rem; overflow-x: auto; font-size: .82rem; line-height: 1.5; }
+.acc-content code { background: rgba(124,58,237,.08); padding: .1rem .35rem; border-radius: 4px; font-size: .85rem; }
+.acc-content pre code { background: transparent; padding: 0; }
+.check-ok { color: #16a34a; font-weight: 700; }
+.check-ng { color: #dc2626; font-weight: 700; }
+</style>
+</head>
+<body>
+<header class="site-header">
+<button class="menu-toggle" aria-label="メニュー" id="menuToggle"><span></span><span></span><span></span></button>
+<a href="https://fukukei23.github.io/loop-engineering-guide/" class="site-title">🔄 ループエンジニアリング</a>
+<button class="theme-toggle" id="themeToggle" aria-label="テーマ切替"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+</header>
+<main class="textbook">
+<h1>🔧 私のLoop Engineering運用ガイド</h1>
+<div class="concept-box">
+<h2>概念を学ぶ — ではなく、毎日どう回すか</h2>
+<p>姉妹ページ『<a href="index.html">ループエンジニアリング教科書</a>』が「ループエンジニアリングとは何か」を学ぶ概念中心の教科書なのに対し、本ページは<strong>自分のClaude Code環境で実際に毎日どう運用するかの具体手順</strong>を整理した私用ガイド。Daily Triage メタループ（Loop Engineering・Phase1〜3.1 完了済の現行システム）の、朝の自動発火から人間承認・自律実行連鎖・停止までを時系列で追う。</p>
+<p style="font-size:.82rem; margin-bottom:0; opacity:.7;">原本: SSOT <code>00_SYSTEM/共通ルール/自律開発ループ.md</code>（139行）／ Phase4（OSS Issue自律ループ復活）完了後の2026-06-29整理</p>
+</div>
+<div class="top-links">
+<a href="index.html">📖 概念教科書（ループエンジニアリングとは）</a>
+<a href="https://fukukei23.github.io/claude-code-guide/">⚡ Claude Code Guide（機能詳細）</a>
+<a href="https://fukukei23.github.io/guides/">📚 ガイド集</a>
+</div>
+
+<div class="concept-box">
+<h2>全体像</h2>
+<p>毎朝 <strong>Daily Triage</strong> がバックログ・handoff・🟢進行中タスクからその日のタスク候補を自動生成し、人間が承認すると、実装→検証の連鎖が自律的に回る仕組み。</p>
+<pre><code>Daily Triage（朝6:07自動）→ today-tasks.md 生成
+  ↓
+人間承認（approve.py）→ state.json 登録・最初のタスク起動
+  ↓
+自律実行連鎖: run-task.sh（実装+検証）→ next_issue.py（Stop hook・次タスク起動）
+  ↓
+全完了 or blocked で停止通知</code></pre>
+</div>
+
+<h2 class="part-h2">第1部 1日の流れ</h2>
+
+<div class="acc-item" data-key="op1">
+<button class="acc-header" onclick="toggle(this)">① 朝6:07（自動）: Daily Triage 発火 <span class="caret">▼</span></button>
+<div class="acc-content">
+<p><code>daily-triage.sh --notify-discord</code> が cron（<code>renew-crons.sh</code> 経由で永続化）で発火する。人間は何もしなくてよい。</p>
+<h4>何が起きるか</h4>
+<ul>
+<li>バックログ + handoff + 🟢進行中タスクを収集</li>
+<li>Claude（GLM）が優先度判定 → <code>~/.claude/state/today-tasks.md</code> を生成</li>
+<li>各タスクに marker を付与: <code>(repo: &lt;name&gt;)</code>（自動実行可能） / <code>(手動)</code>（人間対応）</li>
+<li>Discord webhook で通知（未設定時は skip 警告のみ）</li>
+</ul>
+</div>
+</div>
+
+<div class="acc-item" data-key="op2">
+<button class="acc-header" onclick="toggle(this)">② セッション開始（自動）: 候補表示 <span class="caret">▼</span></button>
+<div class="acc-content">
+<p>SessionStart hook（<code>load-obsidian-log.sh</code>）が <code>today-tasks.md</code> を表示する。人間が候補を確認するだけ。</p>
+</div>
+</div>
+
+<div class="acc-item" data-key="op3">
+<button class="acc-header" onclick="toggle(this)">③ 人間承認（手動）: approve.py <span class="caret">▼</span></button>
+<div class="acc-content">
+<p><code>python3 approve.py</code> で実行するタスクを番号選択する。ここが<strong>唯一の人間の関与ポイント</strong>（承認ゲート）。</p>
+<h4>承認ゲートの挙動</h4>
+<ul>
+<li><code>(手動)</code> marker 付き・repo が実在しないタスクは自動除外</li>
+<li>実在 repo のみキューへ（Phase3.1: per-task repo で多 repo 混在キューに対応）</li>
+<li><code>state.json</code> に pending / current を登録</li>
+<li>最初のタスクが <code>run-task.sh</code> でバックグラウンド起動</li>
+</ul>
+</div>
+</div>
+
+<div class="acc-item" data-key="op4">
+<button class="acc-header" onclick="toggle(this)">④ 自律実行連鎖（自動）: run-task.sh → next_issue.py <span class="caret">▼</span></button>
+<div class="acc-content">
+<p>人間が承認した後は、完全に自律的に回る。</p>
+<h4>run-task.sh（実装 + 検証）</h4>
+<p>実装 claude（git commit まで）→ 検証 claude（別プロセス・ch8 分離）。検証結果を <code>verify-result.txt</code> に <code>OK</code> / <code>NG</code> で書き出す。</p>
+<h4>Stop hook → next_issue.py（次タスク起動）</h4>
+<p><code>verify-result.txt</code> を判定し、次タスクへ遷移させる。</p>
+<table>
+<tr><th>検証結果</th><th>遷移</th></tr>
+<tr><td><code>OK</code></td><td><code>completed</code> に記録・pending から次タスクを current に昇格して起動</td></tr>
+<tr><td><code>NG</code></td><td><code>blocked</code> に記録・停止（Phase3 では即停止・Phase4-B でリトライ厳密化予定だが実測0失敗で YAGNI 後回し）</td></tr>
+</table>
+</div>
+</div>
+
+<div class="acc-item" data-key="op5">
+<button class="acc-header" onclick="toggle(this)">⑤ 終了（自動）: 停止通知 <span class="caret">▼</span></button>
+<div class="acc-content">
+<ul>
+<li>全タスク完了 → Windows トースト「dev-cycle 完了」</li>
+<li>検証 NG 等 → <code>blocked</code>・<code>active: false</code> で停止通知（人間エスカレーション）</li>
+</ul>
+</div>
+</div>
+
+<h2 class="part-h2">第2部 アーキテクチャ・コンポーネント</h2>
+
+<div class="acc-item" data-key="op6">
+<button class="acc-header" onclick="toggle(this)">コンポーネント一覧 <span class="caret">▼</span></button>
+<div class="acc-content">
+<p>全コンポーネントは <code>~/projects/claude-config/scripts/auto-dev/</code> 配下。</p>
+<table>
+<tr><th>コンポーネント</th><th>役割</th></tr>
+<tr><td><code>daily-triage.sh</code></td><td>Triage 発火エンジン（Claude判定呼出・today-tasks.md 生成・Discord通知）</td></tr>
+<tr><td><code>daily_triage.py</code></td><td>バックログ/handoff収集・LLM判定・repo付与（<code>validate_repo()</code> 実在チェック二重防御）</td></tr>
+<tr><td><code>approve.py</code></td><td>人間承認ゲート・<code>select_queueable()</code> で manual除外・state.json 登録</td></tr>
+<tr><td><code>run-task.sh</code></td><td>実装 + 検証（別プロセス）・<code>current.repo</code> を読んで対象 repo で実行</td></tr>
+<tr><td><code>next_issue.py</code></td><td>Stop hook 発火・<code>verify-result.txt</code> 判定・completed/blocked 遷移・次タスク起動</td></tr>
+</table>
+</div>
+</div>
+
+<div class="acc-item" data-key="op7">
+<button class="acc-header" onclick="toggle(this)">state.json スキーマ（現行・Phase3.1） <span class="caret">▼</span></button>
+<div class="acc-content">
+<table>
+<tr><th>キー</th><th>意味</th></tr>
+<tr><td><code>active</code></td><td>ループ生存フラグ（false で即終了）</td></tr>
+<tr><td><code>current</code></td><td>実行中タスク（<code>repo</code> は per-task・真実のソース）</td></tr>
+<tr><td><code>pending</code></td><td>待機中タスク群（多 repo 混在可）</td></tr>
+<tr><td><code>completed</code> / <code>blocked</code></td><td>各タスクの <code>repo</code> を記録</td></tr>
+</table>
+<blockquote>Phase3.1 で top-level <code>repo_path</code> は廃止。per-task <code>repo</code> が真実。</blockquote>
+</div>
+</div>
+
+<h2 class="part-h2">第3部 運用</h2>
+
+<div class="acc-item" data-key="op8">
+<button class="acc-header" onclick="toggle(this)">運用コマンド <span class="caret">▼</span></button>
+<div class="acc-content">
+<pre><code># 手動で Daily Triage 実行（通知なし）
+bash ~/projects/claude-config/scripts/auto-dev/daily-triage.sh
+
+# 承認（候補選択 → state.json 登録・最初のタスク起動）
+python3 ~/projects/claude-config/scripts/auto-dev/approve.py
+
+# state.json 確認
+cat ~/.claude/state/state.json
+
+# テスト（claude-config/scripts/auto-dev で）
+python3 -m pytest -q</code></pre>
+</div>
+</div>
+
+<div class="acc-item" data-key="op9">
+<button class="acc-header" onclick="toggle(this)">トラブル対応 <span class="caret">▼</span></button>
+<div class="acc-content">
+<table>
+<tr><th>症状</th><th>原因・対処</th></tr>
+<tr><td>承認時に today-tasks.md が変わる</td><td>別セッションが daily-triage.sh を実行した可能性。承認直前に再読 or タイムスタンプ確認（Phase3.1 残課題・根本対応は別タスク）</td></tr>
+<tr><td>検証 NG で停止</td><td><code>blocked</code> を確認・手動で修正後、<code>active: true</code> + pending 追加で再開</td></tr>
+<tr><td>cron 期限切れ</td><td>durable ジョブは7日で自動削除。<code>renew-crons.sh</code> で再登録</td></tr>
+</table>
+</div>
+</div>
+
+<div class="acc-item" data-key="op10">
+<button class="acc-header" onclick="toggle(this)">補足: 旧Issue自律ループ（短縮） <span class="caret">▼</span></button>
+<div class="acc-content">
+<p>Loop Engineering 導入前に使っていた方式。Phase4（OSS Issue自律ループ復活）で別途再設計済み。</p>
+<ul>
+<li><strong>方式</strong>: <code>CronCreate</code>（durable・毎時）で <code>gh issue list</code> のオープンIssueを自律実装（ブランチ作成→実装→テスト→PR）</li>
+<li><strong>現状</strong>: <code>start.sh --auto</code> 廃止 → Phase4 で <code>fetch_issues.py</code>/<code>set-mode.sh</code>/<code>auto-loop-config.yaml</code> + ハイブリッド承認ゲート（manual/auto）・単一 auto-loop ラベル・max3 安全装置で復活（60テスト passed）</li>
+</ul>
+<a class="src" href="https://fukukei23.github.io/loop-engineering-guide/">📎 詳細は概念教科書の第3部（自分の環境マップ）を参照</a>
+</div>
+</div>
+
+<footer style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border,rgba(0,0,0,.1)); font-size:.82rem; opacity:.7;">
+<p>🔧 私のLoop Engineering運用ガイド — 2026-06-29 作成（自分用運用手順整理）</p>
+<p>原本: SSOT <code>00_SYSTEM/共通ルール/自律開発ループ.md</code> ／ 姉妹ページ: <a href="index.html">ループエンジニアリング教科書</a> ／ <a href="https://github.com/fukukei23/loop-engineering-guide">GitHub</a></p>
+</footer>
+</main>
+<script>
+function toggle(h){const i=h.closest(".acc-item"),o=i.classList.contains("open");i.classList.toggle("open",!o);const k=i.dataset.key;if(k)localStorage.setItem("acc_"+k,(!o).toString());}
+document.querySelectorAll(".acc-item[data-key]").forEach(i=>{const k=i.dataset.key;if(localStorage.getItem("acc_"+k)==="true")i.classList.add("open");});
+// テーマ切替
+const themeToggle=document.getElementById('themeToggle');
+const savedTheme=localStorage.getItem('theme')||'light';
+document.documentElement.setAttribute('data-theme',savedTheme);
+themeToggle.addEventListener('click',()=>{const cur=document.documentElement.getAttribute('data-theme');const next=cur==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',next);localStorage.setItem('theme',next);});
+// メニュー（モバイル）
+const menuToggle=document.getElementById('menuToggle');
+if(menuToggle){menuToggle.addEventListener('click',()=>{document.body.classList.toggle('nav-open');});}
+</script>
+</body>
+</html>
