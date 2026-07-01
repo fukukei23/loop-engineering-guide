@@ -49,12 +49,19 @@
 - 解説は1-2行・「なぜ」も簡潔に含める（最大2行・3行禁止で冗長化防止）。
 - **モバイル/a11y対策（必須）**: ホバーだけでなく**タップ/フォーカスでもポップアップ表示**。`aria-describedby` で紐付け・キーボードフォーカス時にも表示。タップ外で閉じる。スマホ・スクリーンリーダー・キーボード利用でも解説が読める。
 - 実装時、同一用語が複数箇所に出現する場合は add-term-tooltip スキルの仕様（一意化するか毎回定義か）を確認して從う（MiniMax指摘E）。
-- CSS（`assets/style.css` に追加）:
+- **実装構造確定（MiniMax指摘A・E解消）**: 参照実装 `~/projects/python-reading-guide/` の方式を採用。
+  - **HTML（ネスト構造・兄弟ではない）**: `<span class="term">用語<span class="term-popup">解説</span></span>`。`.term` の中に `.term-popup` をネストするため、MiniMax懸念の「兄弟だと `:focus .term-popup` が効かない」は該当しない。
+  - **JS制御（#term-tooltip）**: ホバー時に `.term-popup` の中身を body 直下の `#term-tooltip`（`position: fixed`）へコピーして表示。overflow/z-index を回避・位置制御も JS。アコーディオン内でも正しく表示。
+  - **a11y**: 参照実装は `.term:hover, .term:focus` 両対応済み。モバイル（タップ）は focus イベントで showTip されるよう JS を拡張して担保（タップ→フォーカス→表示・タップ外で閉じる）。`aria-describedby` 等の aria 属性は JS 制御方式に合わせて実装時調整。
+  - **複数出現（指摘E）**: ネスト方式なので各出現箇所に `.term+.term-popup` をそのまま書く。スキル標準動作（「用語をパターンに置換」を各出現で実施）でフォールバック不要。
+- CSS（`assets/style.css` に追加・参照実装準拠）:
   ```css
-  .term { color: var(--accent, #7c3aed); text-decoration: underline dotted; cursor: help; }
-  .term-popup { /* ホバー + フォーカス + タップで表示・add-term-tooltip スキル既定パターン準拠 */ }
-  .term:focus .term-popup, .term:hover .term-popup { display: block; }
+  .term { border-bottom: 1px dashed var(--accent, #7c3aed); cursor: help; transition: color .2s; }
+  .term:hover, .term:focus { color: var(--fg-bright, inherit); }
+  .term-popup { display: none; }  /* JS が #term-tooltip へ复制して表示 */
+  #term-tooltip { display:none; position:fixed; background: var(--bg-raised,#fff); border:1px solid var(--accent,#7c3aed); border-radius:8px; padding:8px 14px; z-index:9999; }
   ```
+- JS は参照実装の `#term-tooltip` 制御スクリプトを流用（各ページ `<script>` 挿入・共通JS化も検討）。
 
 ### 3. 「なぜ必要」box
 
