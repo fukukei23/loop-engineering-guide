@@ -21,7 +21,7 @@
 
 ## 3つの注釈要素
 
-### 1. 冒頭「3行でわかる」フロー図（operation.html）
+### 1. 冒頭「ひと目でわかる」フロー図（operation.html）
 
 既存の「全体像」セクション（L76〜86）の `<pre><code>` ブロックを視覚的なフロー図に拡張。Flexboxの矢印図で表現。既存のテキストフローは維持しつつ視覚化。
 
@@ -46,11 +46,14 @@
   ```html
   <span class="term">Daily Triage</span><span class="term-popup">朝6:07に自動実行されるAI判定タスク。バックログ＋手付タスクを優先度順にリスト化します</span>
   ```
-- 解説は1-2行・「なぜ」も簡潔に含める。
+- 解説は1-2行・「なぜ」も簡潔に含める（最大2行・3行禁止で冗長化防止）。
+- **モバイル/a11y対策（必須）**: ホバーだけでなく**タップ/フォーカスでもポップアップ表示**。`aria-describedby` で紐付け・キーボードフォーカス時にも表示。タップ外で閉じる。スマホ・スクリーンリーダー・キーボード利用でも解説が読める。
+- 実装時、同一用語が複数箇所に出現する場合は add-term-tooltip スキルの仕様（一意化するか毎回定義か）を確認して從う（MiniMax指摘E）。
 - CSS（`assets/style.css` に追加）:
   ```css
   .term { color: var(--accent, #7c3aed); text-decoration: underline dotted; cursor: help; }
-  .term-popup { /* ホバーで表示・add-term-tooltip スキル既定パターン */ }
+  .term-popup { /* ホバー + フォーカス + タップで表示・add-term-tooltip スキル既定パターン準拠 */ }
+  .term:focus .term-popup, .term:hover .term-popup { display: block; }
   ```
 
 ### 3. 「なぜ必要」box
@@ -76,10 +79,10 @@ CSS:
 }
 ```
 
-配置箇所（operation.html）:
+配置箇所（operation.html）— **限定（MiniMax指摘B・冗長化防止）**:
 - 「全体像」直後（loop全体の存在意義）
-- ①〜⑤の各アコーディオン内（各ステップの必要性）
 - 第2部「アーキテクチャ」内（コンポーネント設計の意図）
+- **①〜⑤の各アコーディオン内には置かない**（本文=事実とwhy-box=理由の二重化を避ける・各ステップの必要性はホバー解説で十分）
 
 配置箇所（index.html）:
 - 各章末（控えめに）
@@ -102,4 +105,11 @@ CSS:
 - operation.html にフロー図・ホバー解説（主要用語）・なぜbox（要所）が入る。
 - index.html にホバー解説・なぜbox（控えめ）が入る。
 - `assets/style.css` に新規クラスが追加され、ダーク/ライト両モードで視認性OK。
-- GitHub Pages で公開後、ホバーで解説が表示されることを目視確認。
+- GitHub Pages で公開後、ホバー**およびタップ/フォーカス**で解説が表示されることを目視確認。
+
+### 目視チェックリスト（MiniMax指摘C・完了前に実施）
+- [ ] ダーク/ライト両モードでフロー図・why-box・term-popup の視認性OK（devtools で切替確認）
+- [ ] CSS競合チェック: 新規 `.term` `.term-popup` `.why-box` `.flow-*` クラスが既存クラスと衝突しない
+- [ ] 用語整合: ホバー解説を付けた用語と本文の表記ゆれがない
+- [ ] モバイル幅（375px想定）でフロー図が崩れない・term-popup が画面端で見切れない
+- [ ] キーボードフォーカス（Tab）で term-popup が表示される
