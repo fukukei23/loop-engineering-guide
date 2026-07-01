@@ -64,7 +64,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <h1>🔧 私のLoop Engineering運用ガイド</h1>
 <div class="concept-box">
 <h2>概念を学ぶ — ではなく、毎日どう回すか</h2>
-<p>姉妹ページ『<a href="index.html">ループエンジニアリング教科書</a>』が「ループエンジニアリングとは何か」を学ぶ概念中心の教科書なのに対し、本ページは<strong>自分のClaude Code環境で実際に毎日どう運用するかの具体手順</strong>を整理した私用ガイド。Daily Triage メタループ（Loop Engineering・Phase1〜3.1 完了済の現行システム）の、朝の自動発火から人間承認・自律実行連鎖・停止までを時系列で追う。</p>
+<p>姉妹ページ『<a href="index.html">ループエンジニアリング教科書</a>』が「ループエンジニアリングとは何か」を学ぶ概念中心の教科書なのに対し、本ページは<strong>自分のClaude Code環境で実際に毎日どう運用するかの具体手順</strong>を整理した私用ガイド。<span class="term">Daily Triage<span class="term-popup">朝6:07にAIがバックログ等から当日タスク候補を自動生成する仕組み</span></span> メタループ（Loop Engineering・Phase1〜3.1 完了済の現行システム）の、朝の自動発火から人間承認・自律実行連鎖・停止までを時系列で追う。</p>
 <p style="font-size:.82rem; margin-bottom:0; opacity:.7;">原本: SSOT <code>00_SYSTEM/共通ルール/自律開発ループ.md</code>（139行）／ Phase4（OSS Issue自律ループ復活）完了後の2026-06-29整理</p>
 </div>
 <div class="top-links">
@@ -75,7 +75,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 
 <div class="concept-box">
 <h2>全体像</h2>
-<p>毎朝 <strong>Daily Triage</strong> がバックログ・handoff・🟢進行中タスクからその日のタスク候補を自動生成し、人間が承認すると、実装→検証の連鎖が自律的に回る仕組み。</p>
+<p>毎朝 <strong>Daily Triage</strong> がバックログ・<span class="term">handoff<span class="term-popup">前回セッションの文脈を次に渡す引き継ぎメモ</span></span>・🟢進行中タスクからその日のタスク候補を自動生成し、人間が承認すると、実装→検証の連鎖が自律的に回る仕組み。</p>
 <pre><code>Daily Triage（朝6:07自動）→ today-tasks.md 生成
   ↓
 人間承認（approve.py）→ state.json 登録・最初のタスク起動
@@ -88,7 +88,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
   <div class="flow-arrow">↓</div>
   <div class="flow-node">人間承認（approve.py）<small>どれをやるか人間が選ぶ・唯一の関与ポイント</small></div>
   <div class="flow-arrow">↓</div>
-  <div class="flow-node">自律実行連鎖<small>run-task.sh（実装+検証）→ next_issue.py が OKで次へ/NGで停止</small></div>
+  <div class="flow-node">自律実行連鎖<small><span class="term">run-task.sh<span class="term-popup">実装と検証を別プロセスで回す実行スクリプト</span></span>（実装+検証）→ <span class="term">next_issue.py<span class="term-popup">1タスク終了後に次タスクへ自動遷移させる制御</span></span> が OKで次へ/NGで停止</small></div>
 </div>
 </div>
 
@@ -107,7 +107,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <ul>
 <li>バックログ + handoff + 🟢進行中タスクを収集</li>
 <li>Claude（GLM）が優先度判定 → <code>~/.claude/state/today-tasks.md</code> を生成</li>
-<li>各タスクに marker を付与: <code>(repo: &lt;name&gt;)</code>（自動実行可能） / <code>(手動)</code>（人間対応）</li>
+<li>各タスクに <span class="term">marker<span class="term-popup">today-tasks.mdで自動実行可か手動かを区別する印</span></span> を付与: <code>(repo: &lt;name&gt;)</code>（自動実行可能） / <code>(手動)</code>（人間対応）</li>
 <li>Discord webhook で通知（未設定時は skip 警告のみ）</li>
 </ul>
 </div>
@@ -116,18 +116,18 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <div class="acc-item" data-key="op2">
 <button class="acc-header" onclick="toggle(this)">② セッション開始（自動）: 候補表示 <span class="caret">▼</span></button>
 <div class="acc-content">
-<p>SessionStart hook（<code>load-obsidian-log.sh</code>）が <code>today-tasks.md</code> を表示する。人間が候補を確認するだけ。</p>
+<p><span class="term">SessionStart hook<span class="term-popup">セッション開始時に発火する仕掛け。handoff読込等を自動化</span></span>（<code>load-obsidian-log.sh</code>）が <code>today-tasks.md</code> を表示する。人間が候補を確認するだけ。</p>
 </div>
 </div>
 
 <div class="acc-item" data-key="op3">
 <button class="acc-header" onclick="toggle(this)">③ 人間承認（手動）: approve.py <span class="caret">▼</span></button>
 <div class="acc-content">
-<p><code>python3 approve.py</code> で実行するタスクを番号選択する。ここが<strong>唯一の人間の関与ポイント</strong>（承認ゲート）。</p>
+<p><code>python3 approve.py</code> で実行するタスクを番号選択する。ここが<strong>唯一の人間の関与ポイント</strong>（<span class="term">承認ゲート<span class="term-popup">AIが勝手に実行しないよう人間がGOを出す唯一の関所</span></span>）。</p>
 <h4>承認ゲートの挙動</h4>
 <ul>
 <li><code>(手動)</code> marker 付き・repo が実在しないタスクは自動除外</li>
-<li>実在 repo のみキューへ（Phase3.1: per-task repo で多 repo 混在キューに対応）</li>
+<li>実在 repo のみキューへ（Phase3.1: <span class="term">per-task repo<span class="term-popup">タスクごとに対象リポジトリを紐付ける方式。多repo混在キューに対応</span></span> で多 repo 混在キューに対応）</li>
 <li><code>state.json</code> に pending / current を登録</li>
 <li>最初のタスクが <code>run-task.sh</code> でバックグラウンド起動</li>
 </ul>
@@ -140,7 +140,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <p>人間が承認した後は、完全に自律的に回る。</p>
 <h4>run-task.sh（実装 + 検証）</h4>
 <p>実装 claude（git commit まで）→ 検証 claude（別プロセス・ch8 分離）。検証結果を <code>verify-result.txt</code> に <code>OK</code> / <code>NG</code> で書き出す。</p>
-<h4>Stop hook → next_issue.py（次タスク起動）</h4>
+<h4><span class="term">Stop hook<span class="term-popup">Claude終了時に発火する仕掛け。ここで次タスクを起動する</span></span> → next_issue.py（次タスク起動）</h4>
 <p><code>verify-result.txt</code> を判定し、次タスクへ遷移させる。</p>
 <table>
 <tr><th>検証結果</th><th>遷移</th></tr>
@@ -163,7 +163,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <h2 class="part-h2">第2部 アーキテクチャ・コンポーネント</h2>
 
 <div class="why-box">
-  <strong>なぜ状態を state.json に記録する？</strong>
+  <strong>なぜ状態を <span class="term">state.json<span class="term-popup">ループの進行状態（実行中/待機/完了/blockers）を記録するファイル。停止再開の要</span></span> に記録する？</strong>
   ループは複数プロセス（実装・検証・次タスク起動）にまたがる。メモリだけでなくファイルに「今どのタスク・待機群・完了/blockers」を書き込んでおくことで、停止しても再開でき、次タスク制御が状態を読むだけで済む。
 </div>
 
