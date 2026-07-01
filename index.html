@@ -65,7 +65,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <h1>🔄 ループエンジニアリング教科書</h1>
 <div class="concept-box">
 <h2>プロンプトを書くのが仕事 — ではなく、ループを書くのが仕事</h2>
-<p>2026年6月、AI活用の主戦場は「上手なプロンプト」から「自律的に回るループの設計」へ移った。本書は、Addy Osmaniが体系化した「ループエンジニアリング」を、概念 → 設計 → 自分の実践 → 運用と移行の4部で読み解く、自分自身のための学習・実践整理の教科書。</p>
+<p>2026年6月、AI活用の主戦場は「上手なプロンプト」から「自律的に回るループの設計」へ移った。本書は、Addy Osmaniが体系化した「<span class="term">ループエンジニアリング<span class="term-popup">AIに都度指示を出す自分を置き換え、自律的に回る仕組みを設計する考え方。プロンプトの上手さではなく構造で差がつく</span></span>」を、概念 → 設計 → 自分の実践 → 運用と移行の4部で読み解く、自分自身のための学習・実践整理の教科書。</p>
 <p style="font-size:.82rem; margin-bottom:0; opacity:.7;">生成元: <a href="https://www.youtube.com/watch?v=Cps2LgY-ENE">解説動画</a> ＋ Web調査 ＋ 自分のClaude Code環境の棚卸し</p>
 </div>
 <div class="top-links">
@@ -143,6 +143,11 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 </div>
 </div>
 
+<div class="why-box">
+<strong>第1部のポイント</strong>
+ループエンジニアリングは「プロンプトを1回書く」ではなく「AIが自走する仕組みを組む」考え方。プロンプトの上手さではなく、ループ全体を設計できるかが従来のAI活用との分岐点になる。
+</div>
+
 <h2 class="part-h2">第2部 設計（ループの中身）</h2>
 
 <div class="acc-item" data-key="ch5">
@@ -207,7 +212,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <!-- ★ 新章ここまで ★ -->
 
 <div class="acc-item" data-key="ch7">
-<button class="acc-header" onclick="toggle(this)">7. 状態の記録（土台） <span class="caret">▼</span></button>
+<button class="acc-header" onclick="toggle(this)">7. <span class="term">状態の記録<span class="term-popup">進捗や次の作業を外部ファイルに書き残す土台。AIはセッションごとに記憶を失うので、これがないと文脈が切れる</span></span>（土台） <span class="caret">▼</span></button>
 <div class="acc-content">
 <p>5要素を支える <strong>土台</strong>。AIはセッションごとに記憶を失うため、この土台が無いと文脈維持（②）も自己修正（③）も成り立たない。</p>
 <h4>記憶の外在化</h4>
@@ -249,6 +254,11 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <h4>🌙 夜 — 状態の保存</h4>
 <p>1日の成果・うまくいったこと・残課題を状態ファイルに保存。翌朝、AIがそれを読み込んで記憶が引き継がれる。</p>
 </div>
+</div>
+
+<div class="why-box">
+<strong>第2部のポイント</strong>
+ループは5要素と土台で成り立つ制御系。/goal や Routines などのツール単体では回らず、目標・検証・停止条件・状態記録を自分で設計して初めて自律ループが成立する。
 </div>
 
 <h2 class="part-h2">第3部 実践（自分の環境マップ）</h2>
@@ -296,6 +306,11 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 </div>
 </div>
 
+<div class="why-box">
+<strong>第3部のポイント</strong>
+概念は遠いものではなく、自分のClaude Code環境（hooks・worktree・handoff・subagent・MCP）に既に実装済み。既有の資産を5要素で言語化し直すこと自体が、ループエンジニアリングの実践になる。
+</div>
+
 <h2 class="part-h2">第4部 運用と移行</h2>
 
 <div class="acc-item" data-key="ch12">
@@ -304,12 +319,12 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <p>ループは強力だが、放っておくと3つの罠に落ちる。</p>
 <h4>① 検証 — 人間の目が必須</h4>
 <p>AIの自己検証は甘くなる（第8章）。最終的な「これで出してよいか」の判断は人間が持つ。自動化が進むほど、この最終チェックをサボりたくなるが、そこが一番危ない。</p>
-<p>Peter Steinbergerはこれを <strong>「the agentic trap（エージェント的な罠）」</strong> と呼ぶ — 人間が早すぎるタイミングでループから手を引くと、AIは一晩中動き続けても「テイスト（taste）」を持たないため、結局は大量の「slop（質の低い量産物）」しか生まれない。仕様を最初に全部書き切って後は丸投げ、という発想そのものが罠になる。</p>
+<p>Peter Steinbergerはこれを <strong>「<span class="term">the agentic trap<span class="term-popup">人間が早すぎるタイミングでループから手を引くと、tasteのない大量のslop（低品質量産物）が生まれる罠</span></span>（エージェント的な罠）」</strong> と呼ぶ — 人間が早すぎるタイミングでループから手を引くと、AIは一晩中動き続けても「テイスト（taste）」を持たないため、結局は大量の「slop（質の低い量産物）」しか生まれない。仕様を最初に全部書き切って後は丸投げ、という発想そのものが罠になる。</p>
 <blockquote>AIはスパイキーに賢く優秀だが、うまく導かなければ結局slopになる。正しい問いを投げかけなければ、それもslopになる。<br>— Peter Steinberger（意訳）</blockquote>
 <a class="src" href="https://creatoreconomy.so/p/how-openclaws-creator-uses-ai-peter-steinberger" target="_blank">📎 Peter Steinberger「the agentic trap」関連インタビュー</a>
 <h4>② コスト — 並行処理で計算コスト増大</h4>
 <p>ループは（特にマルチエージェントで）並行して回る。サブエージェントを多数起動すると、トークン消費が爆発する。停止条件（第5章⑤）と予算上限の設計が必須。</p>
-<h4>③ 理解の借金 — AIが超高速生成し、人間がシステムを説明できなくなる</h4>
+<h4>③ <span class="term">理解の借金<span class="term-popup">AIが高速生成したコードを人間が説明できない状態。放置すると利息がつき、最終的に破産する</span></span> — AIが超高速生成し、人間がシステムを説明できなくなる</h4>
 <p>これが最も恐ろしい。AIが人間を置き去りにしてコードを生成し続けると、人間側が「システムが中で何をやっているか説明できない状態」に陥る。この <strong>理解のギャップ（借金）</strong> は利息がつく。返済（コードを読む力）をサボると、いずめ破産する。</p>
 <blockquote>ループが自動化を担うほど、コードを読む力（Python基礎学習等）が重要になる。自動化と理解はトレードオフではない — 自動化を安全に回すために理解が要る。</blockquote>
 </div>
@@ -391,6 +406,11 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 </div>
 </div>
 
+<div class="why-box">
+<strong>第4部のポイント</strong>
+ループが回るほど人間の役割は「実行」から「監督・最終判断・審美眼」へ移る。自動化を安全に回すためにコードを読む力を持ち続けること――それが「理解の借金」を返済する唯一の道。
+</div>
+
 <footer style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border,rgba(0,0,0,.1)); font-size:.82rem; opacity:.7;">
 <p>🔄 ループエンジニアリング教科書 — 2026-06-18 作成 / 2026-06-23 更新（自分用学習・実践整理）</p>
 <p>生成元: <a href="https://www.youtube.com/watch?v=Cps2LgY-ENE">解説動画</a> + Web調査 + 自分のClaude Code環境 ／ <a href="https://github.com/fukukei23/loop-engineering-guide">GitHub</a></p>
@@ -407,6 +427,39 @@ themeToggle.addEventListener('click',()=>{const cur=document.documentElement.get
 // メニュー（モバイル）
 const menuToggle=document.getElementById('menuToggle');
 if(menuToggle){menuToggle.addEventListener('click',()=>{document.body.classList.toggle('nav-open');});}
+
+// === 注釈強化: term tooltip ===
+(function(){
+  var tip = document.createElement('div');
+  tip.id = 'term-tooltip';
+  document.body.appendChild(tip);
+  var currentTerm = null;
+  function showTip(term) {
+    var popup = term.querySelector('.term-popup');
+    if (!popup) return;
+    tip.textContent = popup.textContent;
+    tip.style.display = 'block';
+    tip.classList.remove('below');
+    var r = term.getBoundingClientRect();
+    var tw = tip.offsetWidth, th = tip.offsetHeight;
+    var left = Math.max(8, Math.min(r.left + r.width/2 - tw/2, window.innerWidth - tw - 8));
+    var top = r.top - th - 10;
+    if (top < 8) { top = r.bottom + 10; tip.classList.add('below'); }
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+    currentTerm = term;
+  }
+  function hideTip() { tip.style.display = 'none'; currentTerm = null; }
+  document.querySelectorAll('.term').forEach(function(t){
+    t.setAttribute('tabindex','0');
+    t.addEventListener('mouseenter', function(){ showTip(t); });
+    t.addEventListener('mouseleave', function(){ hideTip(); });
+    t.addEventListener('focus', function(){ showTip(t); });
+    t.addEventListener('blur', function(){ hideTip(); });
+    t.addEventListener('click', function(e){ e.stopPropagation(); if (currentTerm===t){hideTip();} else {showTip(t);} });
+  });
+  document.addEventListener('click', function(){ hideTip(); });
+  window.addEventListener('scroll', function(){ if (currentTerm) showTip(currentTerm); }, {passive:true});
+})();
 </script>
 </body>
 </html>
