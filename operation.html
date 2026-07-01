@@ -103,13 +103,13 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <button class="acc-header" onclick="toggle(this)">① 朝6:07（自動）: Daily Triage 発火 <span class="caret">▼</span></button>
 <div class="acc-content">
 <p><code>daily-triage.sh --notify-discord</code> が cron（<code>renew-crons.sh</code> 経由で永続化）で発火する。人間は何もしなくてよい。</p>
-<h4>何が起きるか</h4>
-<ul>
-<li>バックログ + handoff + 🟢進行中タスクを収集</li>
-<li>Claude（GLM）が優先度判定 → <code>~/.claude/state/today-tasks.md</code> を生成</li>
-<li>各タスクに <span class="term">marker<span class="term-popup">today-tasks.mdで自動実行可か手動かを区別する印</span></span> を付与: <code>(repo: &lt;name&gt;)</code>（自動実行可能） / <code>(手動)</code>（人間対応）</li>
-<li>Discord webhook で通知（未設定時は skip 警告のみ）</li>
-</ul>
+<h4>何が起きるか（4ステップで順に）</h4>
+<ol>
+<li><strong>材料集め</strong>: <span class="term">バックログ<span class="term-popup">未完了タスクの一覧表。SSOTの「バックログ.md」が正典</span></span>（タスク一覧）＋ handoff（前回の引き継ぎ）＋ <span class="term">🟢進行中タスク<span class="term-popup">active-sessions.mdで他セッションが占有中のタスク。重複着手を防ぐため候補から除外</span></span>（他セッション作業中）を集める</li>
+<li><strong>優先度判定</strong>: Claude（GLM）が「今日やるべき順」を判定し、<code>~/.claude/state/today-tasks.md</code> に書き出す</li>
+<li><strong>自動/手動の振り分け</strong>: 各タスクに <span class="term">marker<span class="term-popup">today-tasks.mdで自動実行可か手動かを区別する印</span></span>（印）を付ける − <code>(repo: 名前)</code> なら自動実行可・<code>(手動)</code> なら人間対応</li>
+<li><strong>通知</strong>: <span class="term">Discord webhook<span class="term-popup">Discordの特定チャンネルにメッセージを自動送信する仕組み。通知先のURL</span></span> で結果を送る（未設定なら警告だけ）</li>
+</ol>
 </div>
 </div>
 
