@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="assets/style.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
 <style>
-.textbook { max-width: 900px; margin: 0 auto; padding: calc(var(--header-h, 60px) + 1.5rem) 1rem 4rem; }
+.textbook { max-width: 900px; margin: 0 auto; padding: calc(var(--header-h, 60px) + 1.5rem) 1rem 4rem; overflow-wrap: anywhere; word-break: break-word; }
 .concept-box {
 background: linear-gradient(135deg, var(--accent-bg, rgba(124,58,237,.08)), rgba(124,58,237,.02));
 border: 1px solid var(--accent, #7c3aed);
@@ -22,7 +22,7 @@ border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: 1.5rem;
 .concept-box h2 { margin-top: 0; color: var(--accent, #7c3aed); }
 .acc-item {
 border: 1px solid var(--border, rgba(0,0,0,.1)); border-radius: 10px;
-margin-bottom: .8rem; overflow: hidden; background: var(--bg-raised, #fff);
+margin-bottom: .8rem; overflow: hidden; background: var(--bg-card, #fff);
 }
 .acc-item.open > .acc-content { display: block; }
 .acc-content { display: none; padding: 1.2rem 1.4rem; border-top: 1px solid var(--border, rgba(0,0,0,.08)); }
@@ -32,13 +32,13 @@ margin-bottom: .8rem; overflow: hidden; background: var(--bg-raised, #fff);
 .acc-header {
 width: 100%; text-align: left; border: none; background: transparent;
 padding: 1rem 1.4rem; font-size: 1.1rem; font-weight: 700; cursor: pointer;
-color: var(--fg, #2d2d3f); display: flex; justify-content: space-between; align-items: center;
+color: var(--text, #1e293b); display: flex; justify-content: space-between; align-items: center;
 }
 .acc-header:hover { background: rgba(124,58,237,.05); }
 .acc-header .caret { transition: transform .2s; font-size: .9rem; opacity: .6; }
 .acc-item.open > .acc-header .caret { transform: rotate(180deg); }
 .part-h2 { margin: 2rem 0 1rem; padding-bottom: .4rem; border-bottom: 2px solid var(--accent, #7c3aed); color: var(--accent, #7c3aed); font-size: 1.3rem; }
-.acc-content table, .ref-table { width: 100%; border-collapse: collapse; margin: .5rem 0; }
+.acc-content table, .ref-table { width: 100%; max-width: 100%; border-collapse: collapse; margin: .5rem 0; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .acc-content th, .ref-table th { background: rgba(124,58,237,.1); padding: .5rem; text-align: left; font-size: .82rem; border: 1px solid var(--border, rgba(0,0,0,.1)); }
 .acc-content td, .ref-table td { padding: .5rem; font-size: .85rem; border: 1px solid var(--border, rgba(0,0,0,.1)); vertical-align: top; }
 .acc-content td a, .ref-table td a { color: var(--accent, #7c3aed); }
@@ -47,7 +47,7 @@ color: var(--fg, #2d2d3f); display: flex; justify-content: space-between; align-
 .top-links { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.2rem; font-size:.85rem; }
 .top-links a { color: var(--accent, #7c3aed); }
 blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; padding: .4rem 1rem; background: rgba(124,58,237,.04); font-style: italic; }
-.acc-content pre { background: rgba(124,58,237,.06); border: 1px solid var(--border, rgba(0,0,0,.1)); border-radius: 8px; padding: .8rem 1rem; overflow-x: auto; font-size: .82rem; line-height: 1.5; }
+.acc-content pre { background: rgba(124,58,237,.06); border: 1px solid var(--border, rgba(0,0,0,.1)); border-radius: 8px; padding: .8rem 1rem; overflow-x: auto; max-width: 100%; font-size: .82rem; line-height: 1.5; -webkit-overflow-scrolling: touch; }
 .acc-content code { background: rgba(124,58,237,.08); padding: .1rem .35rem; border-radius: 4px; font-size: .85rem; }
 .acc-content pre code { background: transparent; padding: 0; }
 .check-ok { color: #16a34a; font-weight: 700; }
@@ -102,7 +102,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <div class="acc-item" data-key="op1">
 <button class="acc-header" onclick="toggle(this)">① 朝6:07（自動）: Daily Triage 発火 <span class="caret">▼</span></button>
 <div class="acc-content">
-<p><code>daily-triage.sh --notify-discord</code> が cron（<code>renew-crons.sh</code> 経由で永続化）で発火する。人間は何もしなくてよい。</p>
+<p><code>daily-triage.sh --notify-discord</code> が cron（<span class="term"><code>renew-crons.sh</code><span class="term-popup">cronジョブを再登録して永続化する（durableジョブは7日で期限切れするため定期更新）</span></span> 経由で永続化）で発火する。人間は何もしなくてよい。</p>
 <h4>何が起きるか（4ステップで順に）</h4>
 <ol>
 <li><strong>材料集め</strong>: <span class="term">バックログ<span class="term-popup">未完了タスクの一覧表。SSOTの「バックログ.md」が正典</span></span>（タスク一覧）＋ handoff（前回の引き継ぎ）＋ <span class="term">🟢進行中タスク<span class="term-popup">active-sessions.mdで他セッションが占有中のタスク。重複着手を防ぐため候補から除外</span></span>（他セッション作業中）を集める</li>
@@ -116,7 +116,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <div class="acc-item" data-key="op2">
 <button class="acc-header" onclick="toggle(this)">② セッション開始（自動）: 候補表示 <span class="caret">▼</span></button>
 <div class="acc-content">
-<p><span class="term">SessionStart hook<span class="term-popup">セッション開始時に発火する仕掛け。handoff読込等を自動化</span></span>（<code>load-obsidian-log.sh</code>）が <code>today-tasks.md</code> を表示する。人間が候補を確認するだけ。</p>
+<p><span class="term">SessionStart hook<span class="term-popup">セッション開始時に発火する仕掛け。handoff読込等を自動化</span></span>（<span class="term"><code>load-obsidian-log.sh</code><span class="term-popup">SessionStart hook本体。セッション開始時にhandoffとtoday-tasks.mdを読み込む</span></span>）が <span class="term"><code>today-tasks.md</code><span class="term-popup">当日のタスク候補リスト（優先度順・marker付き）。daily-triage.sh が生成</span></span> を表示する。人間が候補を確認するだけ。</p>
 </div>
 </div>
 
@@ -128,8 +128,8 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <ul>
 <li><code>(手動)</code> marker 付き・repo が実在しないタスクは自動除外</li>
 <li>実在 repo のみキューへ（Phase3.1: <span class="term">per-task repo<span class="term-popup">タスクごとに対象リポジトリを紐付ける方式。多repo混在キューに対応</span></span> で多 repo 混在キューに対応）</li>
-<li><code>state.json</code> に pending / current を登録</li>
-<li>最初のタスクが <code>run-task.sh</code> でバックグラウンド起動</li>
+<li><span class="term"><code>state.json</code><span class="term-popup">ループの進行状態（active/current/pending/completed/blocked）を記録するファイル。停止再開の要</span></span> に pending / current を登録</li>
+<li>最初のタスクが <span class="term"><code>run-task.sh</code><span class="term-popup">実装＋検証を別プロセスで回す実行スクリプト。current.repoを読んで対象repoで実行</span></span> でバックグラウンド起動</li>
 </ul>
 </div>
 </div>
@@ -139,9 +139,9 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <div class="acc-content">
 <p>人間が承認した後は、完全に自律的に回る。</p>
 <h4>run-task.sh（実装 + 検証）</h4>
-<p>実装 claude（git commit まで）→ 検証 claude（別プロセス・ch8 分離）。検証結果を <code>verify-result.txt</code> に <code>OK</code> / <code>NG</code> で書き出す。</p>
+<p>実装 claude（git commit まで）→ 検証 claude（別プロセス・ch8 分離）。検証結果を <span class="term"><code>verify-result.txt</code><span class="term-popup">検証プロセスが書き出す OK/NG の判定結果ファイル。next_issue.py が読んで次タスク起動を制御</span></span> に <code>OK</code> / <code>NG</code> で書き出す。</p>
 <h4><span class="term">Stop hook<span class="term-popup">Claude終了時に発火する仕掛け。ここで次タスクを起動する</span></span> → next_issue.py（次タスク起動）</h4>
-<p><code>verify-result.txt</code> を判定し、次タスクへ遷移させる。</p>
+<p><span class="term"><code>verify-result.txt</code><span class="term-popup">検証プロセスが書き出す OK/NG の判定結果ファイル。next_issue.py が読んで次タスク起動を制御</span></span> を判定し、次タスクへ遷移させる。</p>
 <table>
 <tr><th>検証結果</th><th>遷移</th></tr>
 <tr><td><code>OK</code></td><td><code>completed</code> に記録・pending から次タスクを current に昇格して起動</td></tr>
