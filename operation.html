@@ -83,6 +83,13 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 自律実行連鎖: run-task.sh（実装+検証）→ next_issue.py（Stop hook・次タスク起動）
   ↓
 全完了 or blocked で停止通知</code></pre>
+<div class="flow-diagram" aria-label="1日の流れフロー">
+  <div class="flow-node">Daily Triage（朝6:07自動）<small>バックログ＋手付タスクをAIが集めてリスト化</small></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">人間承認（approve.py）<small>どれをやるか人間が選ぶ・唯一の関与ポイント</small></div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-node">自律実行連鎖<small>run-task.sh（実装+検証）→ next_issue.py が OKで次へ/NGで停止</small></div>
+</div>
 </div>
 
 <h2 class="part-h2">第1部 1日の流れ</h2>
