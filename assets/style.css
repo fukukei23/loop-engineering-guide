@@ -754,3 +754,9 @@ a:hover { text-decoration: underline; }
 [data-theme="dark"] #term-tooltip { color: #f1f5f9; background: #312e81; }
 [data-theme="dark"] .flow-node { background: var(--bg-card); color: #f1f5f9; }
 [data-theme="dark"] .flow-node small { opacity: 0.9; color: #cbd5e1; }
+
+/* === ダークモード: 表と code の視認性強化 === */
+[data-theme="dark"] .acc-content code { background: #312e81; color: #f1f5f9; border: 1px solid #4f46e5; }
+[data-theme="dark"] .acc-content th { background: #3730a3; color: #ffffff; }
+[data-theme="dark"] .acc-content td { color: #f1f5f9; }
+[data-theme="dark"] .acc-content td code { background: #312e81; color: #fde68a; }
