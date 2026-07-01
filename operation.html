@@ -92,6 +92,11 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 </div>
 </div>
 
+<div class="why-box">
+  <strong>なぜこのループを組む？</strong>
+  人間が毎朝バックログを読み直しタスクを選ぶのは時間がかかる。AIに「候補選び」と「実装・検証の連鎖」を任せ、人間は「どれをやるか」の承認だけを出せばよくなる。これがLoop Engineeringの核心。
+</div>
+
 <h2 class="part-h2">第1部 1日の流れ</h2>
 
 <div class="acc-item" data-key="op1">
@@ -156,6 +161,11 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 </div>
 
 <h2 class="part-h2">第2部 アーキテクチャ・コンポーネント</h2>
+
+<div class="why-box">
+  <strong>なぜ状態を state.json に記録する？</strong>
+  ループは複数プロセス（実装・検証・次タスク起動）にまたがる。メモリだけでなくファイルに「今どのタスク・待機群・完了/blockers」を書き込んでおくことで、停止しても再開でき、次タスク制御が状態を読むだけで済む。
+</div>
 
 <div class="acc-item" data-key="op6">
 <button class="acc-header" onclick="toggle(this)">コンポーネント一覧 <span class="caret">▼</span></button>
