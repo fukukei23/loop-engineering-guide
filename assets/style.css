@@ -747,3 +747,10 @@ a:hover { text-decoration: underline; }
 @media (max-width: 480px) {
   .flow-node { max-width: 100%; font-size: 0.85rem; }
 }
+
+/* === 注釈強化: ダークモード視認性強化 === */
+[data-theme="dark"] .why-box { color: #f1f5f9; }
+[data-theme="dark"] .why-box strong { color: #c7d2fe; }
+[data-theme="dark"] #term-tooltip { color: #f1f5f9; background: #312e81; }
+[data-theme="dark"] .flow-node { background: var(--bg-card); color: #f1f5f9; }
+[data-theme="dark"] .flow-node small { opacity: 0.9; color: #cbd5e1; }
