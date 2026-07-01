@@ -212,7 +212,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <!-- ★ 新章ここまで ★ -->
 
 <div class="acc-item" data-key="ch7">
-<button class="acc-header" onclick="toggle(this)">7. <span class="term">状態の記録<span class="term-popup">進捗や次の作業を外部ファイルに書き残す土台。AIはセッションごとに記憶を失うので、これがないと文脈が切れる</span></span>（土台） <span class="caret">▼</span></button>
+<button class="acc-header" onclick="toggle(this)">7. 状態の記録（土台） <span class="caret">▼</span></button>
 <div class="acc-content">
 <p>5要素を支える <strong>土台</strong>。AIはセッションごとに記憶を失うため、この土台が無いと文脈維持（②）も自己修正（③）も成り立たない。</p>
 <h4>記憶の外在化</h4>
@@ -299,7 +299,7 @@ blockquote { border-left: 3px solid var(--accent, #7c3aed); margin: .6rem 0; pad
 <tr><td>提供元</td><td>Peter Steinberger（OSS、2026/2〜OpenAI入社・OpenClaw Foundationへ移管）</td><td>Anthropic（Boris Cherny）</td><td>OpenAI</td></tr>
 <tr><td>位置づけ</td><td>ループの象徴的実装・界隈普及の起点</td><td>hooks+cron+subagent+skill+MCPで自律基盤</td><td>OpenAI系コーディングエージェント</td></tr>
 <tr><td>ループの担い手</td><td>OSレベルの自動化層</td><td>SessionStart/Stop hooks・自律タスクループ</td><td>エージェント実行ループ（内部）</td></tr>
-<tr><td>状態の記録</td><td>外部ファイル</td><td>handoff.md・memory・日記</td><td>セッション状態</td></tr>
+<tr><td><span class="term">状態の記録<span class="term-popup">進捗や次の作業を外部ファイルに書き残す土台。AIはセッションごとに記憶を失うので、これがないと文脈が切れる</span></span></td><td>外部ファイル</td><td>handoff.md・memory・日記</td><td>セッション状態</td></tr>
 </table>
 <p>The AI Corner の分析では、Claude Code と Codex は <strong>どちらも2026年にループエンジニアリング・パターンを出荷済み</strong>。違いは、Claude Code が hooks/cron/skill/MCP を <strong>ユーザー側で組み立てられる基盤</strong> として公開している点（自分の環境がまさにそれ）。</p>
 <a class="src" href="https://www.the-ai-corner.com/p/loop-engineering-coding-agents-2026" target="_blank">📎 The AI Corner「Loop Engineering: Build Self-Running Coding Agents 2026」</a>
