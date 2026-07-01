@@ -1,0 +1,4 @@
+# Python（test_css.py 実行で生成）
+__pycache__/
+*.pyc
+.pytest_cache/
