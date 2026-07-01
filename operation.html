@@ -238,6 +238,47 @@ themeToggle.addEventListener('click',()=>{const cur=document.documentElement.get
 // メニュー（モバイル）
 const menuToggle=document.getElementById('menuToggle');
 if(menuToggle){menuToggle.addEventListener('click',()=>{document.body.classList.toggle('nav-open');});}
+
+// === 注釈強化: term tooltip（ホバー/フォーカス/タップ対応・a11y） ===
+(function(){
+  var tip = document.createElement('div');
+  tip.id = 'term-tooltip';
+  document.body.appendChild(tip);
+  var currentTerm = null;
+
+  function showTip(term) {
+    var popup = term.querySelector('.term-popup');
+    if (!popup) return;
+    tip.textContent = popup.textContent;
+    tip.style.display = 'block';
+    tip.classList.remove('below');
+    var r = term.getBoundingClientRect();
+    var tw = tip.offsetWidth;
+    var th = tip.offsetHeight;
+    var left = r.left + r.width / 2 - tw / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+    var top = r.top - th - 10;
+    if (top < 8) { top = r.bottom + 10; tip.classList.add('below'); }
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+    currentTerm = term;
+  }
+  function hideTip() { tip.style.display = 'none'; currentTerm = null; }
+
+  document.querySelectorAll('.term').forEach(function(t){
+    t.setAttribute('tabindex', '0');
+    t.addEventListener('mouseenter', function(){ showTip(t); });
+    t.addEventListener('mouseleave', function(){ hideTip(); });
+    t.addEventListener('focus', function(){ showTip(t); });
+    t.addEventListener('blur', function(){ hideTip(); });
+    t.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (currentTerm === t) { hideTip(); } else { showTip(t); }
+    });
+  });
+  document.addEventListener('click', function(){ hideTip(); });
+  window.addEventListener('scroll', function(){ if (currentTerm) showTip(currentTerm); }, {passive:true});
+})();
 </script>
 </body>
 </html>
