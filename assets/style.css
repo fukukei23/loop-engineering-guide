@@ -676,3 +676,74 @@ a:hover { text-decoration: underline; }
     }
     .chapter-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* === 注釈強化: ホバー解説 (.term/.term-popup/#term-tooltip) === */
+.term {
+  border-bottom: 1px dashed var(--accent);
+  cursor: help;
+  transition: color 0.2s;
+}
+.term:hover, .term:focus { color: var(--accent-dark); }
+.term-popup { display: none; }  /* JS が #term-tooltip へ複製して表示 */
+#term-tooltip {
+  display: none;
+  position: fixed;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  max-width: 280px;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+#term-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+}
+#term-tooltip.below::after {
+  top: auto; bottom: 100%;
+  border-bottom-color: var(--accent);
+}
+
+/* === 注釈強化: 「なぜ」box === */
+.why-box {
+  background: var(--accent-bg);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  margin: 0.8rem 0;
+  font-size: 0.88rem;
+}
+.why-box strong { color: var(--accent-dark); }
+
+/* === 注釈強化: フロー図 === */
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 1.2rem 0;
+  padding: 1rem;
+  background: var(--accent-bg);
+  border-radius: 10px;
+}
+.flow-node {
+  background: var(--bg, #fff);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  max-width: 360px;
+  font-size: 0.9rem;
+}
+.flow-node small { display: block; opacity: 0.75; font-size: 0.78rem; margin-top: 0.2rem; }
+.flow-arrow { color: var(--accent); font-size: 1.2rem; font-weight: 700; }
+@media (max-width: 480px) {
+  .flow-node { max-width: 100%; font-size: 0.85rem; }
+}
